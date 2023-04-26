@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:im_stepper/stepper.dart';
+import 'package:intl/intl.dart';
 import 'package:untitled2/cloud_firestore/all_salon_ref.dart';
 import 'package:untitled2/state/state_management.dart';
 
@@ -20,6 +20,7 @@ class BookingScreen extends ConsumerWidget {
     var cityWatch = watch(selectedCity).state;
     var salonWatch = watch(selectedSalon).state;
     var barberWatch = watch(selectedBarber).state;
+    var dateWatch = watch(selectedDate).state;
     return SafeArea(
         child: Scaffold(
       resizeToAvoidBottomInset: true,
@@ -45,7 +46,9 @@ class BookingScreen extends ConsumerWidget {
                     ? displaySalon(cityWatch.name)
                     : step == 3
                         ? displayBarber(salonWatch)
-                        : Container(),
+                        : step == 4
+                            ? displayTimeSlot(context, barberWatch)
+                            : Container(),
           ),
           //Button
           Expanded(
@@ -73,8 +76,10 @@ class BookingScreen extends ConsumerWidget {
                             (step == 2 &&
                                 context.read(selectedSalon).state.docId ==
                                     '') ||
-                            (step == 3 &&
-                                context.read(selectedBarber).state.docId == '')
+                        (step == 3 &&
+                            context.read(selectedBarber).state.docId == '') ||
+                        (step == 4 &&
+                            context.read(selectedTimeSlot).state == -1)
                         ? null
                         : step == 5
                             ? null
@@ -152,8 +157,8 @@ class BookingScreen extends ConsumerWidget {
                   itemCount: salons.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
-                      onTap: () => context.read(selectedSalon).state =
-                          salons[index],
+                      onTap: () =>
+                          context.read(selectedSalon).state = salons[index],
                       child: Card(
                         child: ListTile(
                           leading: Icon(
@@ -190,7 +195,9 @@ class BookingScreen extends ConsumerWidget {
               child: CircularProgressIndicator(),
             );
           else {
-            var barbers = snapshot.data != null ? List<BarberModel>.from(snapshot.data as Iterable) : [];
+            var barbers = snapshot.data != null
+                ? List<BarberModel>.from(snapshot.data as Iterable)
+                : [];
             if (barbers.length == 0)
               return Center(
                 child: Text('Barber list is empty'),
@@ -200,8 +207,8 @@ class BookingScreen extends ConsumerWidget {
                   itemCount: barbers.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
-                      onTap: () => context.read(selectedBarber).state =
-                          barbers[index],
+                      onTap: () =>
+                          context.read(selectedBarber).state = barbers[index],
                       child: Card(
                         child: ListTile(
                           leading: Icon(
@@ -222,12 +229,13 @@ class BookingScreen extends ConsumerWidget {
                             initialRating: barbers[index].rating,
                             direction: Axis.horizontal,
                             itemCount: 5,
+                            onRatingUpdate: (value) {},
                             itemBuilder: (context, _) => Icon(
                               Icons.star,
                               color: Colors.amber,
                             ),
                             itemPadding: const EdgeInsets.all(4),
-                            onRatingUpdate: (val) {},
+
                           ),
                         ),
                       ),
@@ -235,5 +243,67 @@ class BookingScreen extends ConsumerWidget {
                   });
           }
         });
+  }
+
+  displayTimeSlot(BuildContext context, BarberModel barberModel) {
+    var now = context.read(selectedDate).state;
+    return Column(
+      children: [
+        Container(
+          color: Color(0xFF008577),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        children: [
+                          Text(
+                            '${DateFormat.MMMM().format(now)}',
+                            style: GoogleFonts.robotoMono(color: Colors.white54),
+                          ),
+                          Text(
+                            '${now.day}',
+                            style: GoogleFonts.robotoMono(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22),
+                          ),
+                          Text(
+                            '${DateFormat.EEEE().format(now)}',
+                            style: GoogleFonts.robotoMono(color: Colors.white54),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )),
+              GestureDetector(
+                onTap: () {
+                  DatePicker.showDatePicker(
+                      context,
+                      showTitleActions: true,
+                      minTime: now,
+                      maxTime: now.add(Duration(days: 31)),
+                      onConfirm: (date) => context.read(selectedDate).state =
+                          date); //next time you can choose is 31 days next
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Icon(
+                      Icons.calendar_today,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        )
+      ],
+    );
   }
 }

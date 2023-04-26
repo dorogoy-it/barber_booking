@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0-290.3.beta <4.0.0'
+  sdk: '>=2.19.6 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -40,12 +40,15 @@ dependencies:
   flutter_auth_ui: any
   firebase_core: any
   flutter_riverpod: ^0.13.0
+  flutter_datetime_picker: any
   page_transition: any
   rflutter_alert: any
   cloud_firestore: any
   carousel_slider: any
   im_stepper: any
   flutter_rating_bar: any
+  intl: any
+
 
 
 
