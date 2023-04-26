@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "621257764059",
+    "project_id": "lastchance-ec817",
+    "storage_bucket": "lastchance-ec817.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:621257764059:android:3dd739ef19fa099801f0fe",
+        "android_client_info": {
+          "package_name": "com.example.untitled2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "621257764059-s09uefis63asg49falsobi4gb09heefo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.untitled2",
+            "certificate_hash": "8e6f0d214175432b4af3f3df17a6a75ef656024b"
+          }
+        },
+        {
+          "client_id": "621257764059-4e06fg2g66gap6v1pb5uis9ndvb0i4j9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMn4JsYiRLuo5y6u12zNLdP7k5KbN-N0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "621257764059-4e06fg2g66gap6v1pb5uis9ndvb0i4j9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
