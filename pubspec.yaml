@@ -45,6 +45,7 @@ dependencies:
   cloud_firestore: any
   carousel_slider: any
   im_stepper: any
+  flutter_rating_bar: any
 
 
 

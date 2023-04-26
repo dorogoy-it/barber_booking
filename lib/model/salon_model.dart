@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class SalonModel {
   String name = "name", address = "address";
+  String? docId = "docId";
+  DocumentReference? reference;
 
   SalonModel({this.name = '', this.address = ''});
 
