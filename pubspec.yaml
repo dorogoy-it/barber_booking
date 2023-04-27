@@ -48,6 +48,9 @@ dependencies:
   im_stepper: any
   flutter_rating_bar: any
   intl: any
+  ntp: any
+  add_2_calendar: any
+  
 
 
 
