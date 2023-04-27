@@ -1,4 +1,5 @@
 import 'package:add_2_calendar/add_2_calendar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -15,6 +16,7 @@ import 'package:untitled2/model/salon_model.dart';
 import 'package:untitled2/utils/utils.dart';
 
 import '../model/barber_model.dart';
+import '../model/booking_model.dart';
 
 class BookingScreen extends ConsumerWidget {
   GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey();
@@ -29,8 +31,9 @@ class BookingScreen extends ConsumerWidget {
     var timeWatch = watch(selectedTime).state;
     var timeSlotWatch = watch(selectedTimeSlot).state;
     return SafeArea(
-        key: scaffoldKey,
         child: Scaffold(
+          key: scaffoldKey,
+          appBar: AppBar(title: Text('Booking'), backgroundColor: Color(0xFF383838),),
           resizeToAvoidBottomInset: true,
           backgroundColor: Color(0xFFFDF9EE),
           body: Column(
@@ -418,34 +421,45 @@ class BookingScreen extends ConsumerWidget {
             hour, //hour
             minutes //minutes
             ).millisecondsSinceEpoch;
-    var submitData = {
-      'barberId': context.read(selectedBarber).state.docId,
-      'barberName': context.read(selectedBarber).state.name,
-      'cityBook': context.read(selectedCity).state.name,
-      'customerUser': context.read(userInformation).state.name,
-      'customerPhone': FirebaseAuth.instance.currentUser!.phoneNumber!,
-      'done': false,
-      'salonAddress': context.read(selectedSalon).state.address,
-      'salonId': context.read(selectedSalon).state.docId,
-      'salonName': context.read(selectedSalon).state.name,
-      'slot': context.read(selectedTimeSlot).state,
-      'timeStamp': timeStamp,
-      'time':
-          '${context.read(selectedTime).state} - ${DateFormat('dd/MM/yyyy').format(context.read(selectedDate).state)}'
-    };
-    //Submit on FireStore
-    context
+    var bookingModel = BookingModel(
+        barberId: context.read(selectedBarber).state.docId!,
+        barberName: context.read(selectedBarber).state.name,
+        cityBook: context.read(selectedCity).state.name,
+        customerUser: context.read(userInformation).state.name,
+        customerName: context.read(userInformation).state.name,
+        customerPhone: FirebaseAuth.instance.currentUser!.phoneNumber!,
+        done: false,
+        salonAddress: context.read(selectedSalon).state.address,
+        salonId: context.read(selectedSalon).state.docId!,
+        salonName: context.read(selectedSalon).state.name,
+        slot: context.read(selectedTimeSlot).state,
+        timeStamp: timeStamp,
+    time:
+    '${context.read(selectedTime).state} - ${DateFormat('dd/MM/yyyy').format(context.read(selectedDate).state)}'
+    );
+
+    var batch = FirebaseFirestore.instance.batch();
+
+    DocumentReference barberBooking = context
         .read(selectedBarber)
         .state
         .reference!
         .collection(
-            '${DateFormat('dd_MM_yyyy').format(context.read(selectedDate).state)}')
-        .doc(context.read(selectedTimeSlot).state.toString())
-        .set(submitData)
-        .then((value) {
+        '${DateFormat('dd_MM_yyyy').format(context.read(selectedDate).state)}')
+        .doc(context.read(selectedTimeSlot).state.toString());
+    DocumentReference userBooking = FirebaseFirestore.instance.collection('User')
+    .doc(FirebaseAuth.instance.currentUser!.phoneNumber)
+    .collection('Booking_${FirebaseAuth.instance.currentUser!.uid}') //For secure info
+    .doc();
+
+    //Set for batch
+    batch.set(barberBooking, bookingModel.toJson());
+    batch.set(userBooking, bookingModel.toJson());
+    batch.commit().then((value) {
+
       Navigator.of(context).pop();
       ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-        content: Text('Booking Successfully'),
+      content: Text('Booking Successfully'),
       ));
       //Reset value
       context.read(selectedDate).state = DateTime.now();
@@ -458,31 +472,34 @@ class BookingScreen extends ConsumerWidget {
 
       //Create Event
       final Event event = Event(
-          title: 'Barber Appointment',
-          description:
-              'Barber Appointment ${context.read(selectedTime).state} - '
-                  '${DateFormat('dd/MM/yyyy').format(context.read(selectedDate).state)}',
-          location: '${context.read(selectedSalon).state.address}',
-          startDate: DateTime(
-              context.read(selectedDate).state.year,
-              context.read(selectedDate).state.month,
-              context.read(selectedDate).state.day,
-              hour,
-              minutes),
-          endDate: DateTime(
-              context.read(selectedDate).state.year,
-              context.read(selectedDate).state.month,
-              context.read(selectedDate).state.day,
-              hour,
-              minutes + 30),
+      title: 'Barber Appointment',
+      description:
+      'Barber Appointment ${context.read(selectedTime).state} - '
+      '${DateFormat('dd/MM/yyyy').format(context.read(selectedDate).state)}',
+      location: '${context.read(selectedSalon).state.address}',
+      startDate: DateTime(
+      context.read(selectedDate).state.year,
+      context.read(selectedDate).state.month,
+      context.read(selectedDate).state.day,
+      hour,
+      minutes),
+      endDate: DateTime(
+      context.read(selectedDate).state.year,
+      context.read(selectedDate).state.month,
+      context.read(selectedDate).state.day,
+      hour,
+      minutes + 30),
 
-          iosParams: IOSParams(reminder: Duration(minutes: 30)),
-          androidParams: AndroidParams(emailInvites: []));
+      iosParams: IOSParams(reminder: Duration(minutes: 30)),
+      androidParams: AndroidParams(emailInvites: []));
       Add2Calendar.addEvent2Cal(event).then((value) {
-       // print('d' '${context.read(selectedDate).state.day}');
+      // print('d' '${context.read(selectedDate).state.day}');
 
       });
     });
+
+    //Submit on FireStore
+
   }
 
   displayConfirm(BuildContext context) {

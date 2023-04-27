@@ -128,6 +128,7 @@ class HomePage extends ConsumerWidget {
                   ),
                 ),
                 Expanded(
+                  child: GestureDetector(onTap: () => Navigator.pushNamed(context, '/history'),
                   child: Container(
                     child: Card(
                       child: Padding(
@@ -147,7 +148,7 @@ class HomePage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                  ),
+                  ),),
                 )
               ],
             ),

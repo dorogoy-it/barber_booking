@@ -8,6 +8,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:untitled2/screens/booking_screen.dart';
 import 'package:untitled2/screens/home_screen.dart';
+import 'package:untitled2/screens/user_history_screen.dart';
 import 'package:untitled2/state/state_management.dart';
 import 'package:untitled2/utils/utils.dart';
 
@@ -30,6 +31,12 @@ class MyApp extends StatelessWidget {
             return PageTransition(
                 settings: settings,
                 child: HomePage(),
+                type: PageTransitionType.fade);
+            break;
+          case '/history':
+            return PageTransition(
+                settings: settings,
+                child: UserHistory(),
                 type: PageTransitionType.fade);
             break;
           case '/booking':
