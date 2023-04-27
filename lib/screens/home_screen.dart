@@ -21,7 +21,7 @@ class HomePage extends ConsumerWidget {
         child: Column(children: [
           //user profile
           FutureBuilder(
-              future: getUserProfiles(
+              future: getUserProfiles(context,
                   FirebaseAuth.instance.currentUser!.phoneNumber!),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)

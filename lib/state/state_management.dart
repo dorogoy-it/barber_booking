@@ -4,10 +4,13 @@ import 'package:untitled2/model/city_model.dart';
 
 import '../model/barber_model.dart';
 import '../model/salon_model.dart';
+import '../model/user_model.dart';
 
 final userLogged = StateProvider((ref) => FirebaseAuth.instance.currentUser);
 final userToken = StateProvider((ref) => '');
 final forceReload = StateProvider((ref) => false);
+
+final userInformation = StateProvider((ref) => UserModel());
 
 //Booking state
 final currentStep = StateProvider((ref) => 1);
