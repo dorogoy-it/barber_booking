@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled2/model/image_model.dart';
+import 'package:untitled2/state/state_management.dart';
 import '../cloud_firestore/banner_ref.dart';
 import '../cloud_firestore/lookbook_ref.dart';
 import '../cloud_firestore/user_ref.dart';
@@ -68,7 +69,13 @@ class HomePage extends ConsumerWidget {
                               )
                             ],
                           ),
-                        )
+                        ),
+                        context.read(userInformation).state.isStaff ?
+                            IconButton(icon: Icon(Icons.admin_panel_settings,
+                              color: Colors.white,),
+                              onPressed: () =>
+                                  Navigator.of(context).pushNamed(
+                                      '/staffHome'),) : Container()
                       ],
                     ),
                   );

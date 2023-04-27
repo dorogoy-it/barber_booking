@@ -8,6 +8,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:untitled2/screens/booking_screen.dart';
 import 'package:untitled2/screens/home_screen.dart';
+import 'package:untitled2/screens/staff_home_screen.dart';
 import 'package:untitled2/screens/user_history_screen.dart';
 import 'package:untitled2/state/state_management.dart';
 import 'package:untitled2/utils/utils.dart';
@@ -27,6 +28,12 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: (settings){
         switch(settings.name)
         {
+          case '/staffHome':
+            return PageTransition(
+                settings: settings,
+                child: StaffHome(),
+                type: PageTransitionType.fade);
+            break;
           case '/home':
             return PageTransition(
                 settings: settings,

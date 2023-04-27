@@ -23,3 +23,6 @@ final selectedTime = StateProvider((ref) => '');
 
 //Delete Booking
 final deleteFlagRefresh = StateProvider((ref) => false);
+
+//Staff
+final staffStep = StateProvider((ref) => 1);
