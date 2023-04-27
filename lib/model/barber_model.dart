@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BarberModel{
-  String userName = '', name= 'name';
+  String name= 'name';
   String? docId = 'docId';
   double rating=0;
   int ratingTimes=0;
@@ -11,7 +11,6 @@ class BarberModel{
   BarberModel();
 
   BarberModel.fromJson(Map<String,dynamic> json) {
-    userName = json['userName'];
     name = json['name'];
     rating = double.parse(json['rating'] == null ? '0' : json['rating'].toString());
     ratingTimes = int.parse(json['ratingTimes'] == null ? '0' : json['ratingTimes'].toString());
@@ -19,7 +18,6 @@ class BarberModel{
 
   Map<String, dynamic> toJson(){
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userName'] = this.userName;
     data['name'] = this.name;
     data['rating'] = this.rating;
     data['ratingTimes'] = this.ratingTimes;
