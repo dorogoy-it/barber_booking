@@ -10,6 +10,7 @@ import 'package:untitled2/state/state_management.dart';
 
 import 'package:untitled2/model/city_model.dart';
 import 'package:untitled2/model/salon_model.dart';
+import 'package:untitled2/utils/utils.dart';
 
 import '../model/barber_model.dart';
 
@@ -21,6 +22,7 @@ class BookingScreen extends ConsumerWidget {
     var salonWatch = watch(selectedSalon).state;
     var barberWatch = watch(selectedBarber).state;
     var dateWatch = watch(selectedDate).state;
+    var timeWatch = watch(selectedTime).state;
     return SafeArea(
         child: Scaffold(
       resizeToAvoidBottomInset: true,
@@ -40,6 +42,7 @@ class BookingScreen extends ConsumerWidget {
           ),
           //Screen
           Expanded(
+            flex: 10,
             child: step == 1
                 ? displayCityList()
                 : step == 2
@@ -76,10 +79,11 @@ class BookingScreen extends ConsumerWidget {
                             (step == 2 &&
                                 context.read(selectedSalon).state.docId ==
                                     '') ||
-                        (step == 3 &&
-                            context.read(selectedBarber).state.docId == '') ||
-                        (step == 4 &&
-                            context.read(selectedTimeSlot).state == -1)
+                            (step == 3 &&
+                                context.read(selectedBarber).state.docId ==
+                                    '') ||
+                            (step == 4 &&
+                                context.read(selectedTimeSlot).state == -1)
                         ? null
                         : step == 5
                             ? null
@@ -235,7 +239,6 @@ class BookingScreen extends ConsumerWidget {
                               color: Colors.amber,
                             ),
                             itemPadding: const EdgeInsets.all(4),
-
                           ),
                         ),
                       ),
@@ -256,33 +259,32 @@ class BookingScreen extends ConsumerWidget {
             children: [
               Expanded(
                   child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        children: [
-                          Text(
-                            '${DateFormat.MMMM().format(now)}',
-                            style: GoogleFonts.robotoMono(color: Colors.white54),
-                          ),
-                          Text(
-                            '${now.day}',
-                            style: GoogleFonts.robotoMono(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22),
-                          ),
-                          Text(
-                            '${DateFormat.EEEE().format(now)}',
-                            style: GoogleFonts.robotoMono(color: Colors.white54),
-                          ),
-                        ],
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${DateFormat.MMMM().format(now)}',
+                        style: GoogleFonts.robotoMono(color: Colors.white54),
                       ),
-                    ),
-                  )),
+                      Text(
+                        '${now.day}',
+                        style: GoogleFonts.robotoMono(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22),
+                      ),
+                      Text(
+                        '${DateFormat.EEEE().format(now)}',
+                        style: GoogleFonts.robotoMono(color: Colors.white54),
+                      ),
+                    ],
+                  ),
+                ),
+              )),
               GestureDetector(
                 onTap: () {
-                  DatePicker.showDatePicker(
-                      context,
+                  DatePicker.showDatePicker(context,
                       showTitleActions: true,
                       minTime: now,
                       maxTime: now.add(Duration(days: 31)),
@@ -302,6 +304,38 @@ class BookingScreen extends ConsumerWidget {
               )
             ],
           ),
+        ),
+        Expanded(
+          child: GridView.builder(
+              itemCount: TIME_SLOT.length,
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+              itemBuilder: (context, index) => GestureDetector(
+                    onTap: () {
+                      context.read(selectedTime).state =
+                          TIME_SLOT.elementAt(index);
+                    },
+                    child: Card(
+                      color: context.read(selectedTime).state ==
+                          TIME_SLOT.elementAt(index) ? Colors.white54 : Colors.white,
+                      child: GridTile(
+                        child: Center(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('${TIME_SLOT.elementAt(index)}'),
+                              Text('Available')
+                            ],
+                          ),
+                        ),
+                        header: context.read(selectedTime).state ==
+                                TIME_SLOT.elementAt(index)
+                            ? Icon(Icons.check)
+                            : null,
+                      ),
+                    ),
+                  )),
         )
       ],
     );

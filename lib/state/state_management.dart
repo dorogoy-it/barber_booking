@@ -16,3 +16,4 @@ final selectedSalon = StateProvider((ref) => SalonModel(address: '', name: ''));
 final selectedBarber = StateProvider((ref) => BarberModel());
 final selectedDate = StateProvider((ref) => DateTime.now());
 final selectedTimeSlot = StateProvider((ref) => -1);
+final selectedTime = StateProvider((ref) => '');
