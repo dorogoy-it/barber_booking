@@ -317,64 +317,87 @@ class BookingScreen extends ConsumerWidget {
           ),
         ),
         Expanded(
-          child: GridView.builder(
-              itemCount: TIME_SLOT.length,
-              gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-              itemBuilder: (context, index) => GestureDetector(
-                    onTap: () {
-                      context.read(selectedTime).state =
-                          TIME_SLOT.elementAt(index);
-                      context.read(selectedTimeSlot).state = index;
-                    },
-                    child: Card(
-                      color: context.read(selectedTime).state ==
-                              TIME_SLOT.elementAt(index)
-                          ? Colors.white54
-                          : Colors.white,
-                      child: GridTile(
-                        child: Center(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('${TIME_SLOT.elementAt(index)}'),
-                              Text('Available')
-                            ],
+          child: FutureBuilder(
+            future: getTimeSlotOfBarber(barberModel, DateFormat('dd_MM_yyyy').format(context.read(selectedDate).state)),
+            builder: (context, snapshot) {
+              if(snapshot.connectionState == ConnectionState.waiting)
+                return Center(child: CircularProgressIndicator(),);
+              else{
+                var listTimeSlot = snapshot.data as List<int>;
+                return GridView.builder(
+                    itemCount: TIME_SLOT.length,
+                    gridDelegate:
+                    SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+                    itemBuilder: (context, index) => GestureDetector(
+                      onTap: listTimeSlot.contains (index) ? null : () {
+                        context.read(selectedTime).state =
+                            TIME_SLOT.elementAt(index);
+                        context.read(selectedTimeSlot).state = index;
+                      },
+                      child: Card(
+                        color: listTimeSlot.contains(index) ? Colors.white10: context.read(selectedTime).state ==
+                            TIME_SLOT.elementAt(index)
+                            ? Colors.white54
+                            : Colors.white,
+                        child: GridTile(
+                          child: Center(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('${TIME_SLOT.elementAt(index)}'),
+                                Text(listTimeSlot.contains(index) ? 'Full' : 'Available')
+                              ],
+                            ),
                           ),
+                          header: context.read(selectedTime).state ==
+                              TIME_SLOT.elementAt(index)
+                              ? Icon(Icons.check)
+                              : null,
                         ),
-                        header: context.read(selectedTime).state ==
-                                TIME_SLOT.elementAt(index)
-                            ? Icon(Icons.check)
-                            : null,
                       ),
-                    ),
-                  )),
+                    ));
+              }
+            },
+          ),
         )
       ],
     );
   }
 
   confirmBooking(BuildContext context) {
+
+    var hour = context
+        .read(selectedTime)
+        .state.length <= 10 ?  int.parse(context
+        .read(selectedTime)
+        .state
+        .split(':')[0]
+        .substring(0, 1)) :
+    int.parse(context
+        .read(selectedTime)
+        .state
+        .split(':')[0]
+        .substring(0, 2));
+
+    var minutes = context
+        .read(selectedTime)
+        .state.length <= 10 ?  int.parse(context
+        .read(selectedTime)
+        .state
+        .split(':')[1]
+        .substring(0, 1)) :
+    int.parse(context
+        .read(selectedTime)
+        .state
+        .split(':')[1]
+        .substring(0, 2));
     var timeStamp = DateTime(
       context.read(selectedDate).state.year,
       context.read(selectedDate).state.month,
       context.read(selectedDate).state.day,
-      int.parse(context
-          .read(selectedTime)
-          .state
-          .split(':')[0]
-          .substring(0, 2)), //hour
-      int.parse(context
-          .read(selectedTime)
-          .state
-          .split(':')[1]
-          .substring(0, 2)), //minute
-      int.parse(context
-          .read(selectedTime)
-          .state
-          .split(':')[0]
-          .substring(0, 2)), //hour
+      hour, //hour
+      minutes //minutes
     ).millisecond;
     var submitData = {
       'barberId': context.read(selectedBarber).state.docId,
