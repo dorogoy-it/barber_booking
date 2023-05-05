@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:untitled2/screens/booking_screen.dart';
+import 'package:untitled2/screens/done_services_screens.dart';
 import 'package:untitled2/screens/home_screen.dart';
 import 'package:untitled2/screens/staff_home_screen.dart';
 import 'package:untitled2/screens/user_history_screen.dart';
@@ -15,7 +16,7 @@ import 'package:untitled2/utils/utils.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp();
+  await Firebase.initializeApp();
   runApp(ProviderScope(child: MyApp()));
 }
 
@@ -25,13 +26,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      onGenerateRoute: (settings){
-        switch(settings.name)
-        {
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
           case '/staffHome':
             return PageTransition(
                 settings: settings,
                 child: StaffHome(),
+                type: PageTransitionType.fade);
+            break;
+          case '/doneService':
+            return PageTransition(
+                settings: settings,
+                child: DoneService(),
                 type: PageTransitionType.fade);
             break;
           case '/home':
@@ -53,7 +59,8 @@ class MyApp extends StatelessWidget {
                 type: PageTransitionType.fade);
             break;
 
-          default:return null;
+          default:
+            return null;
         }
       },
       theme: ThemeData(
@@ -73,111 +80,100 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class MyHomePage extends ConsumerWidget {
   GlobalKey<ScaffoldState> scaffoldState = new GlobalKey();
-
 
   processLogin(BuildContext context) {
     var user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      FlutterAuthUi.startUi(items: [AuthUiProvider.phone],
-          tosAndPrivacyPolicy: TosAndPrivacyPolicy(
-              tosUrl: 'https://google.com',
-              privacyPolicyUrl: 'https://google.com'),
-          androidOption: AndroidOption(
-              enableSmartLock: false,
-              showLogo: true,
-              overrideTheme: true
-          )).then((value) async {
+      FlutterAuthUi.startUi(
+              items: [AuthUiProvider.phone],
+              tosAndPrivacyPolicy: TosAndPrivacyPolicy(
+                  tosUrl: 'https://google.com',
+                  privacyPolicyUrl: 'https://google.com'),
+              androidOption: AndroidOption(
+                  enableSmartLock: false, showLogo: true, overrideTheme: true))
+          .then((value) async {
         //refresh state
-        context
-            .read(userLogged)
-            .state = FirebaseAuth.instance.currentUser;
+        context.read(userLogged).state = FirebaseAuth.instance.currentUser;
         //start new screen
         await checkLoginState(context, true, scaffoldState);
-      })
-          .catchError((e) {
-        ScaffoldMessenger.of(scaffoldState.currentContext!).showSnackBar(
-            SnackBar(content: Text('${e.toString()}')));
+      }).catchError((e) {
+        ScaffoldMessenger.of(scaffoldState.currentContext!)
+            .showSnackBar(SnackBar(content: Text('${e.toString()}')));
       });
-    }
-    else {
-
-    }
+    } else {}
   }
 
   @override
   Widget build(BuildContext context, watch) {
-    return SafeArea(child: Scaffold(
-        key: scaffoldState,
-        body: Container(
-          decoration: BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage('assets/images/my_bg.png'),
-                  fit: BoxFit.cover)),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width,
-                  child: FutureBuilder(
-                    future: checkLoginState(context, false, scaffoldState),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting)
-                        return Center(child: CircularProgressIndicator(),);
-                      else {
-                        var userState = snapshot.data as LOGIN_STATE;
-                        if (userState == LOGIN_STATE.LOGGED) {
-                          return Container();
-                        }
-                        else {
-                          return ElevatedButton.icon(
-                            onPressed: () => processLogin(context),
-                            icon: Icon(Icons.phone, color: Colors.white,),
-                            label: Text('LOGIN WITH PHONE',
-                              style: TextStyle(color: Colors.white),),
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.black)),
+    return SafeArea(
+        child: Scaffold(
+            key: scaffoldState,
+            body: Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/images/my_bg.png'),
+                      fit: BoxFit.cover)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    width: MediaQuery.of(context).size.width,
+                    child: FutureBuilder(
+                      future: checkLoginState(context, false, scaffoldState),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting)
+                          return Center(
+                            child: CircularProgressIndicator(),
                           );
+                        else {
+                          var userState = snapshot.data as LOGIN_STATE;
+                          if (userState == LOGIN_STATE.LOGGED) {
+                            return Container();
+                          } else {
+                            return ElevatedButton.icon(
+                              onPressed: () => processLogin(context),
+                              icon: Icon(
+                                Icons.phone,
+                                color: Colors.white,
+                              ),
+                              label: Text(
+                                'Регистрация по номеру телефона',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all(Colors.black)),
+                            );
+                          }
                         }
-                      }
-                    },
-                  ),
-                )
-              ],
-            ),
-        )
-    ));
+                      },
+                    ),
+                  )
+                ],
+              ),
+            )));
   }
 
-  Future<LOGIN_STATE?> checkLoginState(BuildContext context, bool fromLogin,
+  Future<LOGIN_STATE> checkLoginState(BuildContext context, bool fromLogin,
       GlobalKey<ScaffoldState> scaffoldState) async {
-    if (!context
-        .read(forceReload)
-        .state) {
+    if (!context.read(forceReload).state) {
       await Future.delayed(
         Duration(seconds: fromLogin == true ? 0 : 3),
-            () async {
+        () async {
           try {
             var token = await FirebaseAuth.instance.currentUser!.getIdToken();
             print('$token');
-            context
-                .read(userToken)
-                .state = token;
-            CollectionReference userRef = FirebaseFirestore.instance.collection(
-                'User');
-            DocumentSnapshot snapshotUser = await userRef.doc(
-                FirebaseAuth.instance.currentUser?.phoneNumber).get();
-            //force reload state
-            context
-                .read(forceReload)
-                .state = true;
+            context.read(userToken).state = token;
+            CollectionReference userRef =
+                FirebaseFirestore.instance.collection('User');
+            DocumentSnapshot snapshotUser = await userRef
+                .doc(FirebaseAuth.instance.currentUser!.phoneNumber)
+                .get();
+            //Force reload state
+            context.read(forceReload).state = true;
             if (snapshotUser.exists) {
               Navigator.pushNamedAndRemoveUntil(
                   context, '/home', (route) => false);
@@ -186,41 +182,40 @@ class MyHomePage extends ConsumerWidget {
               var addressController = TextEditingController();
               Alert(
                 context: context,
-                title: 'UPDATE PROFILES',
+                title: 'Обновить данные',
                 content: Column(
                   children: [
                     TextField(
                       decoration: InputDecoration(
-                          icon: Icon(Icons.account_circle), labelText: 'Name'),
+                          icon: Icon(Icons.account_circle), labelText: 'Имя'),
                       controller: nameController,
                     ),
                     TextField(
                       decoration: InputDecoration(
-                          icon: Icon(Icons.home), labelText: 'Address'),
+                          icon: Icon(Icons.home), labelText: 'Адрес'),
                       controller: addressController,
                     )
                   ],
                 ),
                 buttons: [
                   DialogButton(
-                    child: Text('CANCEL'),
+                    child: Text('Отмена'),
                     onPressed: () => Navigator.pop(context),
                   ),
                   DialogButton(
-                    child: Text('UPDATE'),
+                    child: Text('Обновить'),
                     onPressed: () {
                       //update to server
                       userRef
-                          .doc(FirebaseAuth.instance.currentUser?.phoneNumber)
+                          .doc(FirebaseAuth.instance.currentUser!.phoneNumber)
                           .set({
                         'name': nameController.text,
                         'address': addressController.text
-                      })
-                          .then((value) async {
+                      }).then((value) async {
                         Navigator.pop(context);
                         ScaffoldMessenger.of(scaffoldState.currentContext!)
                             .showSnackBar(SnackBar(
-                          content: Text('UPDATE PROFILES SUCCESSFULLY!'),
+                          content: Text('Данные успешно обновлены!'),
                         ));
                         await Future.delayed(Duration(seconds: 1), () {
                           Navigator.pushNamedAndRemoveUntil(

@@ -24,12 +24,12 @@ class StaffHome extends ConsumerWidget {
         backgroundColor: Color(0xFFDFDFDF),
         appBar: AppBar(
           title: Text(currentStaffStep == 1
-              ? 'Select City'
+              ? 'Выберите город'
               : currentStaffStep == 2
-                  ? 'Select Salon'
+                  ? 'Выберите салон'
                   : currentStaffStep == 3
-                      ? 'Your Appointment'
-                      : 'Staff Home'),
+                      ? 'Ваша запись'
+                      : 'Домашняя страница сотрудника'),
           backgroundColor: Color(0xFF383838),
         ),
         body: Column(
@@ -60,7 +60,7 @@ class StaffHome extends ConsumerWidget {
                       onPressed: currentStaffStep == 1
                           ? null
                           : () => context.read(staffStep).state--,
-                      child: Text('Previous'),
+                      child: Text('Предыдущая'),
                     )),
                     SizedBox(
                       width: 30,
@@ -76,7 +76,7 @@ class StaffHome extends ConsumerWidget {
                               currentStaffStep == 3
                           ? null
                           : () => context.read(staffStep).state++,
-                      child: Text('Next'),
+                      child: Text('Следующая'),
                     )),
                   ],
                 ),
@@ -100,7 +100,7 @@ class StaffHome extends ConsumerWidget {
             var cities = snapshot.data as List<CityModel>;
             if (cities.length == 0)
               return Center(
-                child: Text('Cannot load city list'),
+                child: Text('Не удалось загрузить список городов'),
               );
             else
               return GridView.builder(
@@ -144,7 +144,7 @@ class StaffHome extends ConsumerWidget {
             var salons = snapshot.data as List<SalonModel>;
             if (salons.length == 0)
               return Center(
-                child: Text('Cannot load Salon list'),
+                child: Text('Не удалось загрузить список салонов'),
               );
             else
               return ListView.builder(
@@ -200,7 +200,7 @@ class StaffHome extends ConsumerWidget {
               return displaySlot(context);
             } else {
               return Center(
-                  child: Text('Sorry! You are not a staff of this salon'));
+                  child: Text('Простите! Вы в этом салоне не работаете'));
             }
           }
         });
@@ -291,14 +291,10 @@ class StaffHome extends ConsumerWidget {
                             SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3),
                             itemBuilder: (context, index) => GestureDetector(
-                              onTap: maxTimeSlot > index ||
-                                  listTimeSlot.contains(index)
+                              onTap:
+                                  !listTimeSlot.contains(index)
                                   ? null
-                                  : () {
-                                context.read(selectedTime).state =
-                                    TIME_SLOT.elementAt(index);
-
-                              },
+                                  : () => processDoneServices(context, index),
                               child: Card(
                                 color: listTimeSlot.contains(index)
                                     ? Colors.white10 :
@@ -317,11 +313,13 @@ class StaffHome extends ConsumerWidget {
                                       children: [
                                         Text(
                                             '${TIME_SLOT.elementAt(index)}'),
-                                        Text(listTimeSlot.contains(index)
-                                            ? 'Full'
+                                        Text(
+
+                                            listTimeSlot.contains(index)
+                                            ? 'Занято'
                                             : maxTimeSlot > index
-                                            ? 'Not Available'
-                                            : 'Available')
+                                            ? 'Недоступно'
+                                            : 'Доступно')
                                       ],
                                     ),
                                   ),
@@ -341,5 +339,11 @@ class StaffHome extends ConsumerWidget {
         )
       ],
     );
+  }
+
+  processDoneServices(BuildContext context, int index) {
+      context.read(selectedTimeSlot).state =
+          index;
+      Navigator.of(context).pushNamed('/doneService');
   }
 }

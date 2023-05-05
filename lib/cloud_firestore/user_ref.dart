@@ -9,14 +9,14 @@ import 'package:untitled2/state/state_management.dart';
 Future<UserModel> getUserProfiles(BuildContext context, String phone) async {
   CollectionReference userRef = FirebaseFirestore.instance.collection('User');
   DocumentSnapshot snapshot = await userRef.doc(phone).get();
-  if (snapshot.exists)
-    {
-      var userModel = UserModel.fromJson(snapshot.data()as Map<String, dynamic>);
-      context.read(userInformation).state = userModel;
-      return userModel;
-    }
+  if (snapshot.exists) {
+    final data = snapshot.data() as Map<String,dynamic>;
+    var userModel = UserModel.fromJson(data);
+    context.read(userInformation).state = userModel;
+    return userModel;
+  }
   else 
-    return UserModel();
+    return UserModel(name: '', address: '');
 }
 
 Future<List<BookingModel>> getUserHistory() async{

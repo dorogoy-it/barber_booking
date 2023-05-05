@@ -1,5 +1,7 @@
 import 'package:ntp/ntp.dart';
 
+import '../model/service_model.dart';
+
 enum LOGIN_STATE { LOGGED, NOT_LOGIN }
 
 const TIME_SLOT = {
@@ -99,4 +101,16 @@ Future<DateTime> syncTime() async{
   var now = DateTime.now();
   var offset = await NTP.getNtpOffset(localTime: now);
   return now.add(Duration(milliseconds: offset));
+}
+
+String convertServices(List<ServiceModel> services)
+{
+  String result = '';
+  if (services != null && services.length > 0)
+    {
+      services.forEach((element) {
+        result += '${element.name}, ';
+      });
+    }
+  return result.substring(0, result.length-2);
 }

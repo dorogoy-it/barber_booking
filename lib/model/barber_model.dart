@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BarberModel{
-  String name= 'name';
-  String? docId = 'docId';
+  String name= '';
+  String? docId = '';
   double rating=0;
   int ratingTimes=0;
 

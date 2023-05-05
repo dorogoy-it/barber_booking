@@ -1,8 +1,8 @@
 class UserModel {
-  String name = "name", address = "address";
-  bool isStaff=false;
+  String name = '', address = '';
+  bool isStaff = false;
 
-  UserModel({this.name = '', this.address = ''});
+  UserModel({required this.name, required this.address});
 
   UserModel.fromJson(Map<String,dynamic> json) {
     address = json['address'];

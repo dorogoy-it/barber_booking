@@ -19,7 +19,7 @@ class UserHistory extends ConsumerWidget {
         child: Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        title: Text('User History'),
+        title: Text('История записи'),
         backgroundColor: Color(0xFF383838),
       ),
       resizeToAvoidBottomInset: true,
@@ -43,7 +43,7 @@ class UserHistory extends ConsumerWidget {
             var userBookings = snapshot.data as List<BookingModel>;
             if (userBookings.length == 0)
               return Center(
-                child: Text('Cannot load Booking information'),
+                child: Text('Не удалось загрузить историю записи'),
               );
             else
               return FutureBuilder(
@@ -55,7 +55,6 @@ class UserHistory extends ConsumerWidget {
                       );
                     else {
                       var syncTime = snapshot.data as DateTime;
-
                       return ListView.builder(
                           itemCount: userBookings.length,
                           itemBuilder: (context, index) {
@@ -82,7 +81,7 @@ class UserHistory extends ConsumerWidget {
                                             Column(
                                               children: [
                                                 Text(
-                                                  'Date',
+                                                  'Дата',
                                                   style:
                                                       GoogleFonts.robotoMono(),
                                                 ),
@@ -103,7 +102,7 @@ class UserHistory extends ConsumerWidget {
                                             Column(
                                               children: [
                                                 Text(
-                                                  'Time',
+                                                  'Время',
                                                   style:
                                                       GoogleFonts.robotoMono(),
                                                 ),
@@ -157,31 +156,42 @@ class UserHistory extends ConsumerWidget {
                                     ),
                                   ),
                                   GestureDetector(
-                                    onTap: isExpired
+                                    onTap: (userBookings[index].done ||
+                                            isExpired)
                                         ? null
                                         : () {
                                             Alert(
                                               context: context,
                                               type: AlertType.warning,
-                                              title: 'DELETE BOOKING',
-                                              desc: 'Please delete it from your calendar too',
+                                              title: 'Удалить запись',
+                                              desc:
+                                                  'Пожалуйста, удалите ещё и запись из календаря',
                                               buttons: [
                                                 DialogButton(
                                                   child: Text(
-                                                    'CANCEL',
-                                                    style: GoogleFonts.robotoMono(color: Colors.black),
+                                                    'Отмена',
+                                                    style:
+                                                        GoogleFonts.robotoMono(
+                                                            color:
+                                                                Colors.black),
                                                   ),
-                                                  onPressed: () => Navigator.of(context).pop(),
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(),
                                                   color: Colors.white,
                                                 ),
                                                 DialogButton(
                                                   child: Text(
-                                                    'DELETE',
-                                                    style: GoogleFonts.robotoMono(color: Colors.red),
+                                                    'Удалить',
+                                                    style:
+                                                        GoogleFonts.robotoMono(
+                                                            color: Colors.red),
                                                   ),
                                                   onPressed: () {
-                                                    Navigator.of(context).pop(); // ok
-                                                    cancelBooking(context, userBookings[index]);
+                                                    Navigator.of(context)
+                                                        .pop(); // ok
+                                                    cancelBooking(context,
+                                                        userBookings[index]);
                                                   },
                                                   color: Colors.white,
                                                 ),
@@ -204,10 +214,10 @@ class UserHistory extends ConsumerWidget {
                                                 vertical: 10),
                                             child: Text(
                                               userBookings[index].done
-                                                  ? 'FINISH'
+                                                  ? 'Завершена'
                                                   : isExpired
-                                                      ? 'EXPIRED'
-                                                      : 'CANCEL',
+                                                      ? 'Просрочена'
+                                                      : 'Отмена',
                                               style: GoogleFonts.robotoMono(
                                                   color: isExpired
                                                       ? Colors.grey
@@ -231,14 +241,15 @@ class UserHistory extends ConsumerWidget {
   void cancelBooking(BuildContext context, BookingModel bookingModel) {
     var batch = FirebaseFirestore.instance.batch();
     var barberBooking = FirebaseFirestore.instance
-    .collection('AllSalon')
-    .doc(bookingModel.cityBook)
-    .collection('Branch')
-    .doc(bookingModel.salonId)
-    .collection('Barber')
-    .doc(bookingModel.barberId) // Fixed
-    .collection(DateFormat('dd_MM_yyyy').format(DateTime.fromMillisecondsSinceEpoch(bookingModel.timeStamp)))
-    .doc(bookingModel.slot.toString());
+        .collection('AllSalon')
+        .doc(bookingModel.cityBook)
+        .collection('Branch')
+        .doc(bookingModel.salonId)
+        .collection('Barber')
+        .doc(bookingModel.barberId) // Fixed
+        .collection(DateFormat('dd_MM_yyyy').format(
+            DateTime.fromMillisecondsSinceEpoch(bookingModel.timeStamp)))
+        .doc(bookingModel.slot.toString());
     var userBooking = bookingModel.reference;
 
     //Delete
@@ -246,10 +257,9 @@ class UserHistory extends ConsumerWidget {
     batch.delete(barberBooking);
 
     batch.commit().then((value) {
-
       //Refresh data
-      context.read(deleteFlagRefresh).state = !context.read(deleteFlagRefresh).state;
+      context.read(deleteFlagRefresh).state =
+          !context.read(deleteFlagRefresh).state;
     });
   }
-
 }

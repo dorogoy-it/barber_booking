@@ -32,86 +32,85 @@ class BookingScreen extends ConsumerWidget {
     var timeSlotWatch = watch(selectedTimeSlot).state;
     return SafeArea(
         child: Scaffold(
-          key: scaffoldKey,
-          appBar: AppBar(title: Text('Booking'), backgroundColor: Color(0xFF383838),),
-          resizeToAvoidBottomInset: true,
-          backgroundColor: Color(0xFFFDF9EE),
-          body: Column(
-            children: [
-              //Step
-              NumberStepper(
-                activeStep: step - 1,
-                direction: Axis.horizontal,
-                enableNextPreviousButtons: false,
-                enableStepTapping: false,
-                numbers: [1, 2, 3, 4, 5],
-                stepColor: Colors.black,
-                activeStepColor: Colors.grey,
-                numberStyle: TextStyle(color: Colors.white),
-              ),
-              //Screen
-              Expanded(
-                flex: 10,
-                child: step == 1
-                    ? displayCityList()
-                    : step == 2
-                        ? displaySalon(cityWatch.name)
-                        : step == 3
-                            ? displayBarber(salonWatch)
-                            : step == 4
-                                ? displayTimeSlot(context, barberWatch)
-                                : step == 5
-                                    ? displayConfirm(context)
-                                    : Container(),
-              ),
-              //Button
-              Expanded(
-                  child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                          child: ElevatedButton(
-                        onPressed: step == 1
-                            ? null
-                            : () => context.read(currentStep).state--,
-                        child: Text('Previous'),
-                      )),
-                      SizedBox(
-                        width: 30,
-                      ),
-                      Expanded(
-                          child: ElevatedButton(
-                        onPressed: (step == 1 &&
-                                    context.read(selectedCity).state.name ==
-                                        '') ||
-                                (step == 2 &&
-                                    context
-                                            .read(selectedSalon)
-                                            .state
-                                            .docId ==
-                                        '') ||
-                                (step == 3 &&
-                                    context.read(selectedBarber).state.docId ==
-                                        '') ||
-                                (step == 4 &&
-                                    context.read(selectedTimeSlot).state == -1)
-                            ? null
-                            : step == 5
-                                ? null
-                                : () => context.read(currentStep).state++,
-                        child: Text('Next'),
-                      )),
-                    ],
-                  ),
-                ),
-              ))
-            ],
+      key: scaffoldKey,
+      appBar: AppBar(
+        title: Text('Запись'),
+        backgroundColor: Color(0xFF383838),
+      ),
+      resizeToAvoidBottomInset: true,
+      backgroundColor: Color(0xFFFDF9EE),
+      body: Column(
+        children: [
+          //Step
+          NumberStepper(
+            activeStep: step - 1,
+            direction: Axis.horizontal,
+            enableNextPreviousButtons: false,
+            enableStepTapping: false,
+            numbers: [1, 2, 3, 4, 5],
+            stepColor: Colors.black,
+            activeStepColor: Colors.grey,
+            numberStyle: TextStyle(color: Colors.white),
           ),
-        ));
+          //Screen
+          Expanded(
+            flex: 10,
+            child: step == 1
+                ? displayCityList()
+                : step == 2
+                    ? displaySalon(cityWatch.name)
+                    : step == 3
+                        ? displayBarber(salonWatch)
+                        : step == 4
+                            ? displayTimeSlot(context, barberWatch)
+                            : step == 5
+                                ? displayConfirm(context)
+                                : Container(),
+          ),
+          //Button
+          Expanded(
+              child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                      child: ElevatedButton(
+                    onPressed: step == 1
+                        ? null
+                        : () => context.read(currentStep).state--,
+                    child: Text('Предыдущая'),
+                  )),
+                  SizedBox(
+                    width: 30,
+                  ),
+                  Expanded(
+                      child: ElevatedButton(
+                    onPressed: (step == 1 &&
+                                context.read(selectedCity).state.name == '') ||
+                            (step == 2 &&
+                                context.read(selectedSalon).state.docId ==
+                                    '') ||
+                            (step == 3 &&
+                                context.read(selectedBarber).state.docId ==
+                                    '') ||
+                            (step == 4 &&
+                                context.read(selectedTimeSlot).state == -1)
+                        ? null
+                        : step == 5
+                            ? null
+                            : () => context.read(currentStep).state++,
+                    child: Text('Следующая'),
+                  )),
+                ],
+              ),
+            ),
+          ))
+        ],
+      ),
+    ));
   }
 
   displayCityList() {
@@ -126,7 +125,7 @@ class BookingScreen extends ConsumerWidget {
             var cities = snapshot.data as List<CityModel>;
             if (cities.length == 0)
               return Center(
-                child: Text('Cannot load city list'),
+                child: Text('Не удалось загрузить список городов'),
               );
             else
               return ListView.builder(
@@ -169,7 +168,7 @@ class BookingScreen extends ConsumerWidget {
             var salons = snapshot.data as List<SalonModel>;
             if (salons.length == 0)
               return Center(
-                child: Text('Cannot load Salon list'),
+                child: Text('Не удалось загрузить список салонов'),
               );
             else
               return ListView.builder(
@@ -219,7 +218,7 @@ class BookingScreen extends ConsumerWidget {
                 : [];
             if (barbers.length == 0)
               return Center(
-                child: Text('Barber list is empty'),
+                child: Text('Список парикмахеров пуст'),
               );
             else
               return ListView.builder(
@@ -249,7 +248,7 @@ class BookingScreen extends ConsumerWidget {
                             ignoreGestures: true,
                             direction: Axis.horizontal,
                             itemCount: 5,
-                            onRatingUpdate: (double value) {  },
+                            onRatingUpdate: (double value) {},
                             itemBuilder: (context, _) => Icon(
                               Icons.star,
                               color: Colors.amber,
@@ -360,12 +359,15 @@ class BookingScreen extends ConsumerWidget {
                                         },
                                   child: Card(
                                     color: listTimeSlot.contains(index)
-                                        ? Colors.white10 :
-                                            maxTimeSlot > index ? Colors.white60
-                                        : context.read(selectedTime).state ==
-                                                TIME_SLOT.elementAt(index)
-                                            ? Colors.white54
-                                            : Colors.white,
+                                        ? Colors.white10
+                                        : maxTimeSlot > index
+                                            ? Colors.white60
+                                            : context
+                                                        .read(selectedTime)
+                                                        .state ==
+                                                    TIME_SLOT.elementAt(index)
+                                                ? Colors.white54
+                                                : Colors.white,
                                     child: GridTile(
                                       child: Center(
                                         child: Column(
@@ -377,10 +379,10 @@ class BookingScreen extends ConsumerWidget {
                                             Text(
                                                 '${TIME_SLOT.elementAt(index)}'),
                                             Text(listTimeSlot.contains(index)
-                                                ? 'Full'
+                                                ? 'Занято'
                                                 : maxTimeSlot > index
-                                                    ? 'Not Available'
-                                                    : 'Available')
+                                                    ? 'Недоступно'
+                                                    : 'Доступно')
                                           ],
                                         ),
                                       ),
@@ -420,12 +422,14 @@ class BookingScreen extends ConsumerWidget {
             context.read(selectedDate).state.day,
             hour, //hour
             minutes //minutes
-            ).millisecondsSinceEpoch;
+            )
+        .millisecondsSinceEpoch;
     var bookingModel = BookingModel(
+        totalPrice: 0,
         barberId: context.read(selectedBarber).state.docId!,
         barberName: context.read(selectedBarber).state.name,
         cityBook: context.read(selectedCity).state.name,
-        customerUser: context.read(userInformation).state.name,
+        customerId: FirebaseAuth.instance.currentUser!.uid,
         customerName: context.read(userInformation).state.name,
         customerPhone: FirebaseAuth.instance.currentUser!.phoneNumber!,
         done: false,
@@ -434,9 +438,8 @@ class BookingScreen extends ConsumerWidget {
         salonName: context.read(selectedSalon).state.name,
         slot: context.read(selectedTimeSlot).state,
         timeStamp: timeStamp,
-    time:
-    '${context.read(selectedTime).state} - ${DateFormat('dd/MM/yyyy').format(context.read(selectedDate).state)}'
-    );
+        time:
+            '${context.read(selectedTime).state} - ${DateFormat('dd/MM/yyyy').format(context.read(selectedDate).state)}');
 
     var batch = FirebaseFirestore.instance.batch();
 
@@ -445,21 +448,23 @@ class BookingScreen extends ConsumerWidget {
         .state
         .reference!
         .collection(
-        '${DateFormat('dd_MM_yyyy').format(context.read(selectedDate).state)}')
+            '${DateFormat('dd_MM_yyyy').format(context.read(selectedDate).state)}')
         .doc(context.read(selectedTimeSlot).state.toString());
-    DocumentReference userBooking = FirebaseFirestore.instance.collection('User')
-    .doc(FirebaseAuth.instance.currentUser!.phoneNumber)
-    .collection('Booking_${FirebaseAuth.instance.currentUser!.uid}') //For secure info
-    .doc();
+    DocumentReference userBooking = FirebaseFirestore.instance
+        .collection('User')
+        .doc(FirebaseAuth.instance.currentUser!.phoneNumber!)
+        .collection(
+            'Booking_${FirebaseAuth.instance.currentUser!.uid}') //For secure info
+        .doc(
+            '${context.read(selectedBarber).state.docId}_${DateFormat('dd_MM_yyyy').format(context.read(selectedDate).state)}');
 
     //Set for batch
     batch.set(barberBooking, bookingModel.toJson());
     batch.set(userBooking, bookingModel.toJson());
     batch.commit().then((value) {
-
       Navigator.of(context).pop();
       ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-      content: Text('Booking Successfully'),
+        content: Text('Запись оформлена'),
       ));
       //Reset value
       context.read(selectedDate).state = DateTime.now();
@@ -472,34 +477,31 @@ class BookingScreen extends ConsumerWidget {
 
       //Create Event
       final Event event = Event(
-      title: 'Barber Appointment',
-      description:
-      'Barber Appointment ${context.read(selectedTime).state} - '
-      '${DateFormat('dd/MM/yyyy').format(context.read(selectedDate).state)}',
-      location: '${context.read(selectedSalon).state.address}',
-      startDate: DateTime(
-      context.read(selectedDate).state.year,
-      context.read(selectedDate).state.month,
-      context.read(selectedDate).state.day,
-      hour,
-      minutes),
-      endDate: DateTime(
-      context.read(selectedDate).state.year,
-      context.read(selectedDate).state.month,
-      context.read(selectedDate).state.day,
-      hour,
-      minutes + 30),
-
-      iosParams: IOSParams(reminder: Duration(minutes: 30)),
-      androidParams: AndroidParams(emailInvites: []));
+          title: 'Запись на стрижку',
+          description:
+              'Запись на стрижку ${context.read(selectedTime).state} - '
+              '${DateFormat('dd/MM/yyyy').format(context.read(selectedDate).state)}',
+          location: '${context.read(selectedSalon).state.address}',
+          startDate: DateTime(
+              context.read(selectedDate).state.year,
+              context.read(selectedDate).state.month,
+              context.read(selectedDate).state.day,
+              hour,
+              minutes),
+          endDate: DateTime(
+              context.read(selectedDate).state.year,
+              context.read(selectedDate).state.month,
+              context.read(selectedDate).state.day,
+              hour,
+              minutes + 30),
+          iosParams: IOSParams(reminder: Duration(minutes: 30)),
+          androidParams: AndroidParams(emailInvites: []));
       Add2Calendar.addEvent2Cal(event).then((value) {
-      // print('d' '${context.read(selectedDate).state.day}');
-
+        // print('d' '${context.read(selectedDate).state.day}');
       });
     });
 
     //Submit on FireStore
-
   }
 
   displayConfirm(BuildContext context) {
@@ -508,12 +510,14 @@ class BookingScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
+          flex: 1,
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Image.asset('assets/images/logo.png'),
           ),
         ),
         Expanded(
+          flex: 3,
           child: Container(
             width: MediaQuery.of(context).size.width,
             child: Card(
@@ -522,12 +526,13 @@ class BookingScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     Text(
-                      'Thank you for booking our services!'.toUpperCase(),
+                      'Спасибо, что воспользовались нашими услугами!'
+                          .toUpperCase(),
                       style:
                           GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      'Booking Information'.toUpperCase(),
+                      'Информация о записи'.toUpperCase(),
                       style: GoogleFonts.robotoMono(),
                     ),
                     Row(
@@ -585,18 +590,23 @@ class BookingScreen extends ConsumerWidget {
                       children: [
                         Icon(Icons.location_on),
                         SizedBox(
-                          width: 20,
+                          width: 10,
                         ),
-                        Text(
-                          '${context.read(selectedSalon).state.address}'
-                              .toUpperCase(),
-                          style: GoogleFonts.robotoMono(),
-                        ),
+                        Flexible(
+                          child: Text(
+                            '${context.read(selectedSalon).state.address}'
+                                .toUpperCase(),
+                            style: GoogleFonts.robotoMono(),
+                          ),
+                        )
                       ],
+                    ),
+                    SizedBox(
+                      height: 8,
                     ),
                     ElevatedButton(
                       onPressed: () => confirmBooking(context),
-                      child: Text('Confirm'),
+                      child: Text('Подтвердить'),
                       style: ButtonStyle(
                           backgroundColor:
                               MaterialStateProperty.all(Colors.black26)),

@@ -102,33 +102,11 @@ class HomePage extends ConsumerWidget {
                                 size: 50,
                               ),
                               Text(
-                                'Booking',
+                                'Запись',
                                 style: GoogleFonts.robotoMono(),
                               )
                             ],
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.shopping_cart,
-                              size: 50,
-                            ),
-                            Text(
-                              'Cart',
-                              style: GoogleFonts.robotoMono(),
-                            )
-                          ],
                         ),
                       ),
                     ),
@@ -148,7 +126,7 @@ class HomePage extends ConsumerWidget {
                               size: 50,
                             ),
                             Text(
-                              'History',
+                              'История',
                               style: GoogleFonts.robotoMono(),
                             )
                           ],
@@ -192,7 +170,7 @@ class HomePage extends ConsumerWidget {
             child: Row(
               children: [
                 Text(
-                  'LOOKBOOK',
+                  'Примеры наших работ',
                   style: GoogleFonts.robotoMono(fontSize: 24),
                 )
               ],

@@ -1,7 +1,7 @@
 class CityModel {
-  String name = "name";
+  String name = '';
 
-  CityModel({this.name = ''});
+  CityModel({required this.name});
 
   CityModel.fromJson(Map<String,dynamic> json) {
     name = json['name'];
