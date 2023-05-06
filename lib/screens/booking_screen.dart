@@ -466,21 +466,11 @@ class BookingScreen extends ConsumerWidget {
       ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
         content: Text('Запись оформлена'),
       ));
-      //Reset value
-      context.read(selectedDate).state = DateTime.now();
-      context.read(selectedBarber).state = BarberModel();
-      context.read(selectedCity).state = CityModel(name: '');
-      context.read(selectedSalon).state = SalonModel(name: '', address: '');
-      context.read(currentStep).state = 1;
-      context.read(selectedTime).state = '';
-      context.read(selectedTimeSlot).state = -1;
-
-      //Create Event
       final Event event = Event(
           title: 'Запись на стрижку',
           description:
-              'Запись на стрижку ${context.read(selectedTime).state} - '
-              '${DateFormat('dd/MM/yyyy').format(context.read(selectedDate).state)}',
+          'Запись на стрижку ${context.read(selectedTime).state} - '
+              '${DateFormat('dd/MMMM/yyyy').format(context.read(selectedDate).state)}',
           location: '${context.read(selectedSalon).state.address}',
           startDate: DateTime(
               context.read(selectedDate).state.year,
@@ -499,6 +489,18 @@ class BookingScreen extends ConsumerWidget {
       Add2Calendar.addEvent2Cal(event).then((value) {
         // print('d' '${context.read(selectedDate).state.day}');
       });
+
+      //Reset value
+      context.read(selectedDate).state = DateTime.now();
+      context.read(selectedBarber).state = BarberModel();
+      context.read(selectedCity).state = CityModel(name: '');
+      context.read(selectedSalon).state = SalonModel(name: '', address: '');
+      context.read(currentStep).state = 1;
+      context.read(selectedTime).state = '';
+      context.read(selectedTimeSlot).state = -1;
+
+      //Create Event
+
     });
 
     //Submit on FireStore

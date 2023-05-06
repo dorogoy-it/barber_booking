@@ -9,7 +9,7 @@
         </intent>
     </queries>
     <application
-        android:label="untitled2"
+        android:label="Barber Booking App"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

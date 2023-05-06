@@ -59,6 +59,7 @@ class MyApp extends StatelessWidget {
                 type: PageTransitionType.fade);
             break;
 
+
           default:
             return null;
         }
