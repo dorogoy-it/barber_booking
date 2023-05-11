@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:im_stepper/stepper.dart';
 import 'package:intl/intl.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server/gmail.dart';
 import 'package:untitled2/cloud_firestore/all_salon_ref.dart';
 import 'package:untitled2/state/state_management.dart';
 
@@ -461,7 +463,7 @@ class BookingScreen extends ConsumerWidget {
     //Set for batch
     batch.set(barberBooking, bookingModel.toJson());
     batch.set(userBooking, bookingModel.toJson());
-    batch.commit().then((value) {
+    batch.commit().then((value) async {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
         content: Text('Запись оформлена'),
@@ -487,8 +489,26 @@ class BookingScreen extends ConsumerWidget {
           iosParams: IOSParams(reminder: Duration(minutes: 30)),
           androidParams: AndroidParams(emailInvites: []));
       Add2Calendar.addEvent2Cal(event).then((value) {
-        // print('d' '${context.read(selectedDate).state.day}');
       });
+
+      String username = 'dorogoymv@gmail.com';
+      String password = 'jowvkfjqclchajmy';
+
+      final smtpServer = gmail(username, password);
+
+      final message = Message()
+        ..from = Address(username)
+        ..recipients.add('dorogoymv@gmail.com')
+        ..subject = 'Новая запись ${context.read(selectedTime).state} '
+        ..text = 'Номер клиента: ${FirebaseAuth.instance.currentUser!.phoneNumber!}\nВремя: ${context.read(selectedTime).state} - ${DateFormat('dd/MMMM/yyyy').format(context.read(selectedDate).state)}\nБарбер: ${context.read(selectedBarber).state.name}\nСалон: ${context.read(selectedSalon).state.name}\nАдрес: ${context.read(selectedSalon).state.address}';
+
+      var connection = PersistentConnection(smtpServer);
+
+      // Send the first message
+      await connection.send(message);
+
+      // close the connection
+      await connection.close();
 
       //Reset value
       context.read(selectedDate).state = DateTime.now();

@@ -52,6 +52,7 @@ dependencies:
   ntp: any
   add_2_calendar: any
   chips_choice: any
+  mailer: any
 
 
 
