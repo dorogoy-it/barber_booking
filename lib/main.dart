@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_ui/flutter_auth_ui.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -30,6 +31,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Barber Booking App',
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate
+        ],
+        supportedLocales: [
+          const Locale('en'),
+          const Locale('fr')
+        ],
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/staffHome':

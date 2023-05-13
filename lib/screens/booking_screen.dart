@@ -281,7 +281,7 @@ class BookingScreen extends ConsumerWidget {
                   child: Column(
                     children: [
                       Text(
-                        '${DateFormat.MMMM().format(now)}',
+                        '${DateFormat.MMMM('ru').format(now)}',
                         style: GoogleFonts.robotoMono(color: Colors.white54),
                       ),
                       Text(
@@ -292,7 +292,7 @@ class BookingScreen extends ConsumerWidget {
                             fontSize: 22),
                       ),
                       Text(
-                        '${DateFormat.EEEE().format(now)}',
+                        '${DateFormat.EEEE('ru').format(now)}',
                         style: GoogleFonts.robotoMono(color: Colors.white54),
                       ),
                     ],
@@ -302,6 +302,7 @@ class BookingScreen extends ConsumerWidget {
               GestureDetector(
                 onTap: () {
                   DatePicker.showDatePicker(context,
+                      locale: LocaleType.ru,
                       showTitleActions: true,
                       minTime: DateTime.now(), // Fix can't select current date
                       maxTime: now.add(Duration(days: 31)),
@@ -472,7 +473,7 @@ class BookingScreen extends ConsumerWidget {
           title: 'Запись на стрижку',
           description:
           'Запись на стрижку ${context.read(selectedTime).state} - '
-              '${DateFormat('dd/MMMM/yyyy').format(context.read(selectedDate).state)}',
+              '${DateFormat('dd/MMMM/yyyy', 'ru').format(context.read(selectedDate).state)}',
           location: '${context.read(selectedSalon).state.address}',
           startDate: DateTime(
               context.read(selectedDate).state.year,
@@ -500,7 +501,7 @@ class BookingScreen extends ConsumerWidget {
         ..from = Address(username)
         ..recipients.add('dorogoymv@gmail.com')
         ..subject = 'Новая запись ${context.read(selectedTime).state} '
-        ..text = 'Номер клиента: ${FirebaseAuth.instance.currentUser!.phoneNumber!}\nВремя: ${context.read(selectedTime).state} - ${DateFormat('dd/MMMM/yyyy').format(context.read(selectedDate).state)}\nБарбер: ${context.read(selectedBarber).state.name}\nСалон: ${context.read(selectedSalon).state.name}\nАдрес: ${context.read(selectedSalon).state.address}';
+        ..text = 'Номер клиента: ${FirebaseAuth.instance.currentUser!.phoneNumber!}\nВремя: ${context.read(selectedTime).state} - ${DateFormat('dd/MMMM/yyyy', 'ru').format(context.read(selectedDate).state)}\nБарбер: ${context.read(selectedBarber).state.name}\nСалон: ${context.read(selectedSalon).state.name}\nАдрес: ${context.read(selectedSalon).state.address}';
 
       var connection = PersistentConnection(smtpServer);
 
@@ -564,7 +565,7 @@ class BookingScreen extends ConsumerWidget {
                           width: 10,
                         ),
                         Text(
-                          '${context.read(selectedTime).state} - ${DateFormat('dd/MMMM/yyyy').format(context.read(selectedDate).state)}'
+                          '${context.read(selectedTime).state} - ${DateFormat('dd/MMMM/yyyy', 'ru').format(context.read(selectedDate).state)}'
                               .toUpperCase(),
                           style: GoogleFonts.robotoMono(),
                         ),
