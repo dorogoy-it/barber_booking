@@ -9,6 +9,7 @@ import 'package:untitled2/state/state_management.dart';
 import '../cloud_firestore/banner_ref.dart';
 import '../cloud_firestore/lookbook_ref.dart';
 import '../cloud_firestore/user_ref.dart';
+import '../main.dart';
 import '../model/user_model.dart';
 import '../utils/utils.dart';
 
@@ -210,7 +211,7 @@ class HomePage extends ConsumerWidget {
     ));
   }
 
-  Future signOut(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
+  Future<void> signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut().then((value) => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MyHomePage())));
   }
 }

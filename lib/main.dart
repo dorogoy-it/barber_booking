@@ -14,9 +14,13 @@ import 'package:untitled2/screens/user_history_screen.dart';
 import 'package:untitled2/state/state_management.dart';
 import 'package:untitled2/utils/utils.dart';
 
+import 'firebase_options.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(ProviderScope(child: MyApp()));
 }
 
@@ -78,22 +82,30 @@ class MyHomePage extends ConsumerWidget {
     var user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       FlutterAuthUi.startUi(
-              items: [AuthUiProvider.phone],
-              tosAndPrivacyPolicy: TosAndPrivacyPolicy(
-                  tosUrl: 'https://google.com',
-                  privacyPolicyUrl: 'https://google.com'),
-              androidOption: AndroidOption(
-                  enableSmartLock: false, showLogo: true, overrideTheme: true))
+          items: [AuthUiProvider.phone],
+          tosAndPrivacyPolicy: TosAndPrivacyPolicy(
+              tosUrl: 'https://google.com',
+              privacyPolicyUrl: 'https://google.com'),
+          androidOption: AndroidOption(
+              enableSmartLock: false, showLogo: true, overrideTheme: true))
           .then((value) async {
         //refresh state
         context.read(userLogged).state = FirebaseAuth.instance.currentUser;
         //start new screen
-        await checkLoginState(context, true, scaffoldState);
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => HomePage()),
+              (Route<dynamic> route) => false,
+        );
       }).catchError((e) {
         ScaffoldMessenger.of(scaffoldState.currentContext!)
             .showSnackBar(SnackBar(content: Text('${e.toString()}')));
       });
-    } else {}
+    } else {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => HomePage()),
+            (Route<dynamic> route) => false,
+      );
+    }
   }
 
   @override
@@ -121,6 +133,7 @@ class MyHomePage extends ConsumerWidget {
                           );
                         else {
                           var userState = snapshot.data as LOGIN_STATE;
+                          print(userState);
                           if (userState == LOGIN_STATE.LOGGED) {
                             return Container();
                           } else {
@@ -147,7 +160,6 @@ class MyHomePage extends ConsumerWidget {
               ),
             )));
   }
-
   Future<LOGIN_STATE> checkLoginState(BuildContext context, bool fromLogin,
       GlobalKey<ScaffoldState> scaffoldState) async {
     if (!context.read(forceReload).state) {
@@ -156,7 +168,7 @@ class MyHomePage extends ConsumerWidget {
         () async {
           try {
             var token = await FirebaseAuth.instance.currentUser!.getIdToken();
-            print('$token');
+            //print('$token');
             context.read(userToken).state = token;
             CollectionReference userRef =
                 FirebaseFirestore.instance.collection('User');
@@ -168,6 +180,7 @@ class MyHomePage extends ConsumerWidget {
             if (snapshotUser.exists) {
               Navigator.pushNamedAndRemoveUntil(
                   context, '/home', (route) => false);
+              return LOGIN_STATE.LOGGED;
             } else {
               var nameController = TextEditingController();
               var addressController = TextEditingController();
@@ -224,7 +237,7 @@ class MyHomePage extends ConsumerWidget {
             }
           } catch (e) {
             print(e);
-            return null;
+            return LOGIN_STATE.NOT_LOGIN;
           }
         },
       );
