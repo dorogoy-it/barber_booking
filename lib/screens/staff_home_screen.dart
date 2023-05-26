@@ -222,7 +222,7 @@ class StaffHome extends ConsumerWidget {
                       child: Column(
                         children: [
                           Text(
-                            '${DateFormat.MMMM().format(now)}',
+                            '${DateFormat.MMMM('ru').format(now)}',
                             style: GoogleFonts.robotoMono(color: Colors.white54),
                           ),
                           Text(
@@ -233,7 +233,7 @@ class StaffHome extends ConsumerWidget {
                                 fontSize: 22),
                           ),
                           Text(
-                            '${DateFormat.EEEE().format(now)}',
+                            '${DateFormat.EEEE('ru').format(now)}',
                             style: GoogleFonts.robotoMono(color: Colors.white54),
                           ),
                         ],
@@ -243,6 +243,7 @@ class StaffHome extends ConsumerWidget {
               GestureDetector(
                 onTap: () {
                   DatePicker.showDatePicker(context,
+                      locale: LocaleType.ru,
                       showTitleActions: true,
                       minTime: DateTime.now(), // Fix can't select current date
                       maxTime: now.add(Duration(days: 31)),
@@ -276,7 +277,7 @@ class StaffHome extends ConsumerWidget {
                   return FutureBuilder(
                     future: getBookingSlotOfBarber(
                       context,
-                        DateFormat('dd_MM_yyyy')
+                        DateFormat('dd_MM_yyyy', 'ru')
                             .format(context.read(selectedDate).state)),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting)

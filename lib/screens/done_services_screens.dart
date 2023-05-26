@@ -15,7 +15,7 @@ class DoneService extends ConsumerWidget {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
   @override
-  Widget build(BuildContext context, watch) {
+  Widget build(BuildContext context, ScopedReader watch) {
     //When refresh, clear servicesSelected, because ChipChoices don't hold state
     context.read(selectedServices).state.clear();
     return SafeArea(
@@ -84,19 +84,19 @@ class DoneService extends ConsumerWidget {
                                   var totalPrice = servicesSelected
                                       .map((item) => item.price)
                                       .fold(
-                                          0.0,
+                                      0.0,
                                           (value, element) =>
-                                              double.parse(value.toString()) +
-                                              element);
+                                      double.parse(value.toString()) +
+                                          element);
                                   return Text(
-                                    'Price \$${context.read(selectedBooking).state.totalPrice == 0 ? totalPrice : context.read(selectedBooking).state.totalPrice}',
+                                    'Цена ${context.read(selectedBooking).state.totalPrice == 0 ? totalPrice : context.read(selectedBooking).state.totalPrice}'' руб.',
                                     style: GoogleFonts.robotoMono(fontSize: 22),
                                   );
                                 }),
                                 context.read(selectedBooking).state.done
                                     ? Chip(
-                                        label: Text('Завершено'),
-                                      )
+                                  label: Text('Завершено'),
+                                )
                                     : Container()
                               ],
                             ),
@@ -123,49 +123,47 @@ class DoneService extends ConsumerWidget {
                         return Consumer(builder: (context, watch, _) {
                           var servicesWatch = watch(selectedServices).state;
                           return SingleChildScrollView(
-                              child: Column(
-                            children: [
-                              Wrap(
-                                children: services.map((e) => Padding(
+                            child: Column(
+                              children: [
+                                Wrap(
+                                  children: services.map((e) => Padding(
                                     padding: const EdgeInsets.all(4),
                                     child: ChoiceChip(
-                                        selected: context.read(selectedServices).state.contains(e),
-                                        selectedColor: Colors.blue,
-                                        label: Text('${e.name}'),
-                                        labelStyle: TextStyle(color: Colors.white),
-                                        backgroundColor: Colors.teal,
-                                        onSelected: (isSelected){
-                                          var list = context.read(selectedServices).state;
-                                          if (isSelected)
-                                            {
-                                              list.add(e);
-                                              context.read(selectedServices).state = list;
-                                            }
-                                          else{
-                                            list.remove(e);
-                                            context.read(selectedServices).state = list;
-                                          }
+                                      selected: servicesWatch.contains(e),
+                                      selectedColor: Colors.blue,
+                                      label: Text('${e.name}'),
+                                      labelStyle: TextStyle(color: Colors.white),
+                                      backgroundColor: Colors.teal,
+                                      onSelected: (isSelected){
+                                        var list = servicesWatch.toList();
+                                        if (isSelected) {
+                                          list.add(e);
+                                        } else {
+                                          list.remove(e);
+                                        }
+                                        context.read(selectedServices).state = list;
                                       },
                                     ),
-                                )).toList(),
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width,
-                                child: ElevatedButton(
-                                  onPressed:
-                                      context.read(selectedBooking).state.done
-                                          ? null
-                                          : servicesWatch.length > 0
-                                              ? () => finishService(context)
-                                              : null,
-                                  child: Text(
-                                    'Завершено',
-                                    style: GoogleFonts.robotoMono(),
-                                  ),
+                                  )).toList(),
                                 ),
-                              )
-                            ],
-                          ));
+                                Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: ElevatedButton(
+                                    onPressed:
+                                    context.read(selectedBooking).state.done
+                                        ? null
+                                        : servicesWatch.length > 0
+                                        ? () => finishService(context)
+                                        : null,
+                                    child: Text(
+                                      'Завершено',
+                                      style: GoogleFonts.robotoMono(),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          );
                         });
                       }
                     }),
@@ -186,7 +184,7 @@ class DoneService extends ConsumerWidget {
         .doc('${barberBook.customerPhone}')
         .collection('Booking_${barberBook.customerId}')
         .doc(
-            '${barberBook.barberId}_${DateFormat('dd_MM_yyyy').format(DateTime.fromMillisecondsSinceEpoch(barberBook.timeStamp))}');
+        '${barberBook.barberId}_${DateFormat('dd_MM_yyyy').format(DateTime.fromMillisecondsSinceEpoch(barberBook.timeStamp))}');
     Map<String, dynamic> updateDone = new Map();
     updateDone['done'] = true;
     updateDone['services'] =
@@ -196,9 +194,9 @@ class DoneService extends ConsumerWidget {
         .state
         .map((e) => e.price)
         .fold(
-            0.0,
+        0.0,
             (previousValue, element) =>
-                double.parse(previousValue.toString()) + element);
+        double.parse(previousValue.toString()) + element);
 
     batch.update(userBook, updateDone);
     batch.update(barberBook.reference!, updateDone);

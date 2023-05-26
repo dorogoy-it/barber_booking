@@ -336,7 +336,7 @@ class BookingScreen extends ConsumerWidget {
                   return FutureBuilder(
                     future: getTimeSlotOfBarber(
                         barberModel,
-                        DateFormat('dd_MM_yyyy')
+                        DateFormat('dd_MM_yyyy', 'ru')
                             .format(context.read(selectedDate).state)),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting)
