@@ -103,14 +103,12 @@ Future<DateTime> syncTime() async{
   return now.add(Duration(milliseconds: offset));
 }
 
-String convertServices(List<ServiceModel> services)
-{
-  String result = '';
-  if (services != null && services.length > 0)
-    {
-      services.forEach((element) {
-        result += '${element.name}, ';
-      });
-    }
-  return result.substring(0, result.length-2);
+List<Map<String, String>> convertServices(List<ServiceModel> services) {
+  List<Map<String, String>> result = [];
+  if (services != null && services.length > 0) {
+    services.forEach((element) {
+      result.add({'name': element.name});
+    });
+  }
+  return result;
 }

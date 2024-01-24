@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:untitled2/model/service_model.dart';
 
 class BookingModel {
-  String? docId = '', services = '';
+  String? docId = '';
   String barberId = '',
       barberName = '',
       cityBook = '',
@@ -16,6 +17,7 @@ class BookingModel {
   double totalPrice=0;
   bool done = false;
   int slot = 0, timeStamp = 0;
+  List<ServiceModel> services = [];
 
   DocumentReference? reference;
 
@@ -30,7 +32,7 @@ class BookingModel {
       required this.salonAddress,
       required this.salonId,
       required this.salonName,
-      this.services,
+      required this.services,
       required this.time,
       required this.done,
       required this.slot,
@@ -47,7 +49,9 @@ class BookingModel {
     salonAddress = json['salonAddress'];
     salonName = json['salonName'];
     salonId = json['salonId'];
-    services = json['services'];
+    // Ensure that 'services' is a List<Map<String, dynamic>> and not null
+    List<dynamic>? servicesJson = json['services'];
+    services = servicesJson?.map((serviceJson) => ServiceModel.fromJson(serviceJson)).toList() ?? [];
     time = json['time'];
     done = json['done'] as bool;
     slot = int.parse(json['slot'] == null ? '-1' : json['slot'].toString());
@@ -68,9 +72,11 @@ class BookingModel {
     data['salonAddress'] = this.salonAddress;
     data['salonName'] = this.salonName;
     data['salonId'] = this.salonId;
+    data['services'] = this.services.map((service) => service.toJson()).toList();
     data['time'] = this.time;
     data['done'] = this.done;
     data['slot'] = this.slot;
+    data['totalPrice'] = this.totalPrice;
     data['timeStamp'] = this.timeStamp;
     return data;
   }

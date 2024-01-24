@@ -18,10 +18,16 @@ class UserHistory extends ConsumerWidget {
     return SafeArea(
         child: Scaffold(
       key: scaffoldKey,
-      appBar: AppBar(
-        title: Text('История записи'),
-        backgroundColor: Color(0xFF383838),
-      ),
+          appBar: AppBar(
+            title: Text(
+              'История записи',
+              style: TextStyle(
+                color: Colors.white, // Здесь указывается цвет текста
+              ),
+            ),
+            backgroundColor: Color(0xFF383838),
+            iconTheme: IconThemeData(color: Colors.white),
+          ),
       resizeToAvoidBottomInset: true,
       backgroundColor: Color(0xFFFDF9EE),
       body: Padding(
@@ -35,17 +41,25 @@ class UserHistory extends ConsumerWidget {
     return FutureBuilder(
         future: getUserHistory(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: CircularProgressIndicator(),
             );
-          else {
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else if (snapshot.data == null) {
+            return Center(
+              child: Text('Data is null'),
+            );
+          } else {
             var userBookings = snapshot.data as List<BookingModel>;
-            if (userBookings.length == 0)
+            if (userBookings.isEmpty) {
               return Center(
                 child: Text('Не удалось загрузить историю записи'),
               );
-            else
+            } else
               return FutureBuilder(
                   future: syncTime(),
                   builder: (context, snapshot) {
@@ -151,7 +165,53 @@ class UserHistory extends ConsumerWidget {
                                               style: GoogleFonts.robotoMono(),
                                             ),
                                           ],
-                                        )
+                                        ),
+                                        Divider(
+                                          thickness: 1,
+                                        ),
+                                        Text(
+                                          'Услуги:',
+                                          style: GoogleFonts.robotoMono(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+
+                                        // Display services and prices
+                                        for (var service
+                                            in userBookings[index].services)
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                '${service.name}',
+                                                style: GoogleFonts.robotoMono(),
+                                              ),
+                                              Text(
+                                                '${service.price} руб.',
+                                                style: GoogleFonts.robotoMono(),
+                                              ),
+                                            ],
+                                          ),
+                                        Divider(
+                                          thickness: 1,
+                                        ),
+                                        // Display total price
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Окончательная цена:',
+                                              style: GoogleFonts.robotoMono(fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                              '${userBookings[index].totalPrice} руб.',
+                                              style: GoogleFonts.robotoMono(),
+                                            ),
+                                          ],
+                                        ),
                                       ],
                                     ),
                                   ),

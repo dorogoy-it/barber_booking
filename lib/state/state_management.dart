@@ -37,6 +37,7 @@ final selectedBooking = StateProvider((ref) => BookingModel(
     salonAddress: '',
     salonId: '',
     salonName: '',
+    services: [],
     time: '',
     done: false,
     slot: 0,

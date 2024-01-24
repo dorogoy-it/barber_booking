@@ -17,4 +17,20 @@ class ServiceModel {
     data['price'] = this.price;
     return data;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is ServiceModel &&
+              runtimeType == other.runtimeType &&
+              name == other.name &&
+              price == other.price;
+
+  @override
+  int get hashCode => name.hashCode ^ price.hashCode;
+
+  @override
+  String toString() {
+    return 'ServiceModel{price: $price, name: $name}';
+  }
 }

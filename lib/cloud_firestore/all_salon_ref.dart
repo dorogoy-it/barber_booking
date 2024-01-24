@@ -40,6 +40,7 @@ Future<BookingModel> getDetailBooking(BuildContext context, int timeSlot) async{
       salonAddress: '',
       salonId: '',
       salonName: '',
+      services: [],
       time: '',
       done: false,
       slot: 0,
