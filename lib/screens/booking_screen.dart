@@ -8,8 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:im_stepper/stepper.dart';
 import 'package:intl/intl.dart';
-import 'package:mailer/mailer.dart';
-import 'package:mailer/smtp_server/gmail.dart';
 import 'package:untitled2/cloud_firestore/all_salon_ref.dart';
 import 'package:untitled2/state/state_management.dart';
 import 'package:untitled2/model/city_model.dart';
@@ -171,50 +169,57 @@ class BookingScreen extends ConsumerWidget {
 
   displaySalon(String cityName) {
     return FutureBuilder(
-        future: getSalonByCity(cityName),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
+      future: getSalonByCity(cityName),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting)
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        else {
+          var salons = snapshot.data as List<SalonModel>;
+          if (salons.length == 0)
             return Center(
-              child: CircularProgressIndicator(),
+              child: Text('Не удалось загрузить список салонов'),
             );
-          else {
-            var salons = snapshot.data as List<SalonModel>;
-            if (salons.length == 0)
-              return Center(
-                child: Text('Не удалось загрузить список салонов'),
-              );
-            else
-              return ListView.builder(
-                  itemCount: salons.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () =>
-                          context.read(selectedSalon).state = salons[index],
-                      child: Card(
-                        child: ListTile(
-                          leading: Icon(
-                            Icons.home_outlined,
-                            color: Colors.black,
-                          ),
-                          trailing: context.read(selectedSalon).state.docId ==
-                                  salons[index].docId
-                              ? Icon(Icons.check)
-                              : null,
-                          title: Text(
-                            '${salons[index].name}',
-                            style: GoogleFonts.robotoMono(),
-                          ),
-                          subtitle: Text(
-                            '${salons[index].address}',
-                            style: GoogleFonts.robotoMono(
-                                fontStyle: FontStyle.italic),
-                          ),
+          else
+            return ListView.builder(
+              itemCount: salons.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    // Опустошаем список услуг при выборе нового салона
+                    context.read(selectedServices).state = [];
+                    // Устанавливаем выбранный салон
+                    context.read(selectedSalon).state = salons[index];
+                  },
+                  child: Card(
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.home_outlined,
+                        color: Colors.black,
+                      ),
+                      trailing: context.read(selectedSalon).state.docId ==
+                          salons[index].docId
+                          ? Icon(Icons.check)
+                          : null,
+                      title: Text(
+                        '${salons[index].name}',
+                        style: GoogleFonts.robotoMono(),
+                      ),
+                      subtitle: Text(
+                        '${salons[index].address}',
+                        style: GoogleFonts.robotoMono(
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
-                    );
-                  });
-          }
-        });
+                    ),
+                  ),
+                );
+              },
+            );
+        }
+      },
+    );
   }
 
   displayBarber(SalonModel salonModel) {
@@ -572,26 +577,6 @@ class BookingScreen extends ConsumerWidget {
             iosParams: IOSParams(reminder: Duration(minutes: 30)),
             androidParams: AndroidParams(emailInvites: []));
         Add2Calendar.addEvent2Cal(event).then((value) {});
-
-        String username = 'dorogoymv@gmail.com';
-        String password = 'jowvkfjqclchajmy';
-
-        final smtpServer = gmail(username, password);
-
-        final message = Message()
-          ..from = Address(username)
-          ..recipients.add('dorogoymv@gmail.com')
-          ..subject = 'Новая запись ${context.read(selectedTime).state} '
-          ..text =
-              'Номер клиента: ${FirebaseAuth.instance.currentUser!.phoneNumber!}\nВремя: ${context.read(selectedTime).state} - ${DateFormat('dd/MMMM/yyyy', 'ru').format(context.read(selectedDate).state)}\nБарбер: ${context.read(selectedBarber).state.name}\nСалон: ${context.read(selectedSalon).state.name}\nАдрес: ${context.read(selectedSalon).state.address}';
-
-        var connection = PersistentConnection(smtpServer);
-
-        // Send the first message
-        await connection.send(message);
-
-        // close the connection
-        await connection.close();
 
         //Reset value
         context.read(selectedDate).state = DateTime.now();

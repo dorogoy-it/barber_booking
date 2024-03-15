@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Barber Booking App',
       localizationsDelegates: [GlobalMaterialLocalizations.delegate],
+      restorationScopeId: "Test",
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/staffHome':
@@ -262,7 +263,7 @@ class MyHomePage extends ConsumerWidget {
   FutureProvider<LOGIN_STATE>((ref) async {
     try {
       var token = await FirebaseAuth.instance.currentUser!.getIdToken();
-      ref.read(userToken).state = token;
+      ref.read(userToken).state = token!;
       CollectionReference userRef =
       FirebaseFirestore.instance.collection('User');
       DocumentSnapshot snapshotUser = await userRef
