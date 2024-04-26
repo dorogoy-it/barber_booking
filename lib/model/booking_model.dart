@@ -62,22 +62,22 @@ class BookingModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['barberId'] = this.barberId;
-    data['barberName'] = this.barberName;
-    data['cityBook'] = this.cityBook;
-    data['customerId'] = this.customerId;
-    data['customerName'] = this.customerName;
-    data['customerPhone'] = this.customerPhone;
-    data['salonAddress'] = this.salonAddress;
-    data['salonName'] = this.salonName;
-    data['salonId'] = this.salonId;
-    data['services'] = this.services.map((service) => service.toJson()).toList();
-    data['time'] = this.time;
-    data['done'] = this.done;
-    data['slot'] = this.slot;
-    data['totalPrice'] = this.totalPrice;
-    data['timeStamp'] = this.timeStamp;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['barberId'] = barberId;
+    data['barberName'] = barberName;
+    data['cityBook'] = cityBook;
+    data['customerId'] = customerId;
+    data['customerName'] = customerName;
+    data['customerPhone'] = customerPhone;
+    data['salonAddress'] = salonAddress;
+    data['salonName'] = salonName;
+    data['salonId'] = salonId;
+    data['services'] = services.map((service) => service.toJson()).toList();
+    data['time'] = time;
+    data['done'] = done;
+    data['slot'] = slot;
+    data['totalPrice'] = totalPrice;
+    data['timeStamp'] = timeStamp;
     return data;
   }
 }

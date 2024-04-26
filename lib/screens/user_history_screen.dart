@@ -10,39 +10,41 @@ import 'package:untitled2/utils/utils.dart';
 import '../model/booking_model.dart';
 
 class UserHistory extends ConsumerWidget {
-  GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+
+  UserHistory({super.key});
 
   @override
-  Widget build(BuildContext context, watch) {
-    var watchRefresh = watch(deleteFlagRefresh).state;
+  Widget build(BuildContext context, WidgetRef ref) {
+    var watchRefresh = ref.watch(deleteFlagRefresh);
     return SafeArea(
         child: Scaffold(
       key: scaffoldKey,
           appBar: AppBar(
-            title: Text(
+            title: const Text(
               'История записи',
               style: TextStyle(
                 color: Colors.white, // Здесь указывается цвет текста
               ),
             ),
-            backgroundColor: Color(0xFF383838),
-            iconTheme: IconThemeData(color: Colors.white),
+            backgroundColor: const Color(0xFF383838),
+            iconTheme: const IconThemeData(color: Colors.white),
           ),
       resizeToAvoidBottomInset: true,
-      backgroundColor: Color(0xFFFDF9EE),
+      backgroundColor: const Color(0xFFFDF9EE),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: displayUserHistory(),
+        child: displayUserHistory(ref),
       ),
     ));
   }
 
-  displayUserHistory() {
+  displayUserHistory(WidgetRef ref) {
     return FutureBuilder(
         future: getUserHistory(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
@@ -50,24 +52,24 @@ class UserHistory extends ConsumerWidget {
               child: Text('Error: ${snapshot.error}'),
             );
           } else if (snapshot.data == null) {
-            return Center(
+            return const Center(
               child: Text('Data is null'),
             );
           } else {
             var userBookings = snapshot.data as List<BookingModel>;
             if (userBookings.isEmpty) {
-              return Center(
+              return const Center(
                 child: Text('Не удалось загрузить историю записи'),
               );
-            } else
+            } else {
               return FutureBuilder(
                   future: syncTime(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting)
-                      return Center(
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
                         child: CircularProgressIndicator(),
                       );
-                    else {
+                    } else {
                       var syncTime = snapshot.data as DateTime;
                       return ListView.builder(
                           itemCount: userBookings.length,
@@ -77,7 +79,7 @@ class UserHistory extends ConsumerWidget {
                                 .isBefore(syncTime);
                             return Card(
                               elevation: 8,
-                              shape: RoundedRectangleBorder(
+                              shape: const RoundedRectangleBorder(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(22))),
                               child: Column(
@@ -132,7 +134,7 @@ class UserHistory extends ConsumerWidget {
                                             )
                                           ],
                                         ),
-                                        Divider(
+                                        const Divider(
                                           thickness: 1,
                                         ),
                                         Column(
@@ -147,26 +149,26 @@ class UserHistory extends ConsumerWidget {
                                                       .spaceBetween,
                                               children: [
                                                 Text(
-                                                  '${userBookings[index].salonName}',
+                                                  userBookings[index].salonName,
                                                   style: GoogleFonts.robotoMono(
                                                       fontSize: 20,
                                                       fontWeight:
                                                           FontWeight.bold),
                                                 ),
                                                 Text(
-                                                  '${userBookings[index].barberName}',
+                                                  userBookings[index].barberName,
                                                   style:
                                                       GoogleFonts.robotoMono(),
                                                 ),
                                               ],
                                             ),
                                             Text(
-                                              '${userBookings[index].salonAddress}',
+                                              userBookings[index].salonAddress,
                                               style: GoogleFonts.robotoMono(),
                                             ),
                                           ],
                                         ),
-                                        Divider(
+                                        const Divider(
                                           thickness: 1,
                                         ),
                                         Text(
@@ -184,7 +186,7 @@ class UserHistory extends ConsumerWidget {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                '${service.name}',
+                                                service.name,
                                                 style: GoogleFonts.robotoMono(),
                                               ),
                                               Text(
@@ -193,7 +195,7 @@ class UserHistory extends ConsumerWidget {
                                               ),
                                             ],
                                           ),
-                                        Divider(
+                                        const Divider(
                                           thickness: 1,
                                         ),
                                         // Display total price
@@ -228,6 +230,10 @@ class UserHistory extends ConsumerWidget {
                                                   'Пожалуйста, удалите ещё и запись из календаря',
                                               buttons: [
                                                 DialogButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(),
+                                                  color: Colors.white,
                                                   child: Text(
                                                     'Отмена',
                                                     style:
@@ -235,31 +241,27 @@ class UserHistory extends ConsumerWidget {
                                                             color:
                                                                 Colors.black),
                                                   ),
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(),
-                                                  color: Colors.white,
                                                 ),
                                                 DialogButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(); // ok
+                                                    cancelBooking(ref, context,
+                                                        userBookings[index]);
+                                                  },
+                                                  color: Colors.white,
                                                   child: Text(
                                                     'Удалить',
                                                     style:
                                                         GoogleFonts.robotoMono(
                                                             color: Colors.red),
                                                   ),
-                                                  onPressed: () {
-                                                    Navigator.of(context)
-                                                        .pop(); // ok
-                                                    cancelBooking(context,
-                                                        userBookings[index]);
-                                                  },
-                                                  color: Colors.white,
                                                 ),
                                               ],
                                             ).show();
                                           },
                                     child: Container(
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.blue,
                                         borderRadius: BorderRadius.only(
                                             bottomRight: Radius.circular(22),
@@ -294,11 +296,12 @@ class UserHistory extends ConsumerWidget {
                           });
                     }
                   });
+            }
           }
         });
   }
 
-  void cancelBooking(BuildContext context, BookingModel bookingModel) {
+  void cancelBooking(WidgetRef ref, BuildContext context, BookingModel bookingModel) {
     var batch = FirebaseFirestore.instance.batch();
     var barberBooking = FirebaseFirestore.instance
         .collection('AllSalon')
@@ -318,8 +321,8 @@ class UserHistory extends ConsumerWidget {
 
     batch.commit().then((value) {
       //Refresh data
-      context.read(deleteFlagRefresh).state =
-          !context.read(deleteFlagRefresh).state;
+      ref.read(deleteFlagRefresh.notifier).state =
+          !ref.read(deleteFlagRefresh.notifier).state;
     });
   }
 }

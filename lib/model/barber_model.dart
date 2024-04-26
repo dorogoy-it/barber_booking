@@ -17,10 +17,10 @@ class BarberModel{
   }
 
   Map<String, dynamic> toJson(){
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['name'] = this.name;
-    data['rating'] = this.rating;
-    data['ratingTimes'] = this.ratingTimes;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['name'] = name;
+    data['rating'] = rating;
+    data['ratingTimes'] = ratingTimes;
     return data;
   }
 }

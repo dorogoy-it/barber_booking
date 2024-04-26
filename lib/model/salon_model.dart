@@ -13,9 +13,9 @@ class SalonModel {
   }
 
   Map<String, dynamic> toJson(){
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['address'] = this.address;
-    data['name'] = this.name;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['address'] = address;
+    data['name'] = name;
     return data;
   }
 }

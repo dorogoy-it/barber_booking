@@ -8,63 +8,115 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:untitled2/screens/add_admin_screen.dart';
+import 'package:untitled2/screens/add_barber_screen.dart';
+import 'package:untitled2/screens/admin_home_screen.dart';
 import 'package:untitled2/screens/booking_screen.dart';
+import 'package:untitled2/screens/delete_booking_screen.dart';
+import 'package:untitled2/screens/done_deleting_screen.dart';
 import 'package:untitled2/screens/done_services_screens.dart';
+import 'package:untitled2/screens/edit_salon_info.dart';
+import 'package:untitled2/screens/edit_salon_services.dart';
 import 'package:untitled2/screens/home_screen.dart';
+import 'package:untitled2/screens/remove_barber_screen.dart';
+import 'package:untitled2/screens/reschedule_booking_screen.dart';
 import 'package:untitled2/screens/staff_home_screen.dart';
 import 'package:untitled2/screens/user_history_screen.dart';
 import 'package:untitled2/state/state_management.dart';
 import 'package:untitled2/utils/utils.dart';
 import 'firebase_options.dart';
+import 'model/user_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(ProviderScope(child: MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Barber Booking App',
-      localizationsDelegates: [GlobalMaterialLocalizations.delegate],
+      localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
       restorationScopeId: "Test",
       onGenerateRoute: (settings) {
         switch (settings.name) {
+          case '/removeBarber':
+            return PageTransition(
+                settings: settings,
+                child: const RemoveBarberScreen(),
+                type: PageTransitionType.fade);
+          case '/editSalonServices':
+            return PageTransition(
+                settings: settings,
+                child: const EditServiceScreen(),
+                type: PageTransitionType.fade);
+          case '/editSalonInfo':
+            return PageTransition(
+                settings: settings,
+                child: const SalonEditScreen(),
+                type: PageTransitionType.fade);
+          case '/addAdmin':
+            return PageTransition(
+                settings: settings,
+                child: const AddAdminScreen(),
+                type: PageTransitionType.fade);
+          case '/addBarber':
+            return PageTransition(
+                settings: settings,
+                child: const AddEmployeeScreen(),
+                type: PageTransitionType.fade);
+          case '/rescheduleBooking':
+            return PageTransition(
+                settings: settings,
+                child: RescheduleBooking(),
+                type: PageTransitionType.fade);
+          case '/doneDeleting':
+            return PageTransition(
+                settings: settings,
+                child: DoneDeleting(),
+                type: PageTransitionType.fade);
+          case '/deleteBooking':
+            return PageTransition(
+                settings: settings,
+                child: DeleteBooking(),
+                type: PageTransitionType.fade);
+          case '/adminHome':
+            return PageTransition(
+                settings: settings,
+                child: const AdminHome(),
+                type: PageTransitionType.fade);
           case '/staffHome':
             return PageTransition(
                 settings: settings,
-                child: StaffHome(),
+                child: const StaffHome(),
                 type: PageTransitionType.fade);
-            break;
           case '/doneService':
             return PageTransition(
                 settings: settings,
                 child: DoneService(),
                 type: PageTransitionType.fade);
-            break;
           case '/home':
             return PageTransition(
                 settings: settings,
-                child: HomePage(),
+                child: const HomePage(),
                 type: PageTransitionType.fade);
-            break;
           case '/history':
             return PageTransition(
                 settings: settings,
                 child: UserHistory(),
                 type: PageTransitionType.fade);
-            break;
           case '/booking':
             return PageTransition(
                 settings: settings,
                 child: BookingScreen(),
                 type: PageTransitionType.fade);
-            break;
 
           default:
             return null;
@@ -79,23 +131,25 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends ConsumerWidget {
-  GlobalKey<ScaffoldState> scaffoldState = GlobalKey();
+  final GlobalKey<ScaffoldState> scaffoldState = GlobalKey();
 
-  processLogin(BuildContext context) async {
+  MyHomePage({super.key});
+
+  processLogin(WidgetRef ref, BuildContext context) async {
     var user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
       try {
         await FlutterAuthUi.startUi(
             items: [AuthUiProvider.phone],
-            tosAndPrivacyPolicy: TosAndPrivacyPolicy(
+            tosAndPrivacyPolicy: const TosAndPrivacyPolicy(
                 tosUrl: 'https://google.com',
                 privacyPolicyUrl: 'https://google.com'),
-            androidOption: AndroidOption(
+            androidOption: const AndroidOption(
                 enableSmartLock: false, showLogo: true, overrideTheme: true));
 
         // refresh state
-        context.read(userLogged).state = FirebaseAuth.instance.currentUser;
+        ref.read(userLogged.notifier).state = FirebaseAuth.instance.currentUser;
 
         // check if the user exists in the 'User' collection
         CollectionReference userRef = FirebaseFirestore.instance.collection('User');
@@ -103,8 +157,13 @@ class MyHomePage extends ConsumerWidget {
 
         if (snapshotUser.exists) {
           // user exists, navigate to home
+          UserModel userModel = UserModel.fromJson(snapshotUser.data() as Map<String, dynamic>);
+
+          // Сохраните userModel в провайдере userInformation
+          ref.read(userInformation.notifier).state = userModel;
+
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => HomePage()),
+            MaterialPageRoute(builder: (context) => const HomePage()),
                 (Route<dynamic> route) => false,
           );
         } else {
@@ -118,14 +177,14 @@ class MyHomePage extends ConsumerWidget {
             content: Column(
               children: [
                 TextField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       icon: Icon(Icons.account_circle),
                       labelText: 'Имя'
                   ),
                   controller: nameController,
                 ),
                 TextField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       icon: Icon(Icons.home),
                       labelText: 'Адрес'
                   ),
@@ -135,13 +194,13 @@ class MyHomePage extends ConsumerWidget {
             ),
             buttons: [
               DialogButton(
-                child: Text('Отмена'),
+                child: const Text('Отмена'),
                 onPressed: () {
                   Navigator.pop(context);
                 },
               ),
               DialogButton(
-                child: Text('Сохранить'),
+                child: const Text('Сохранить'),
                 onPressed: () {
                   // check if the input fields contain non-space characters
                   if (nameController.text.trim().isNotEmpty && addressController.text.trim().isNotEmpty) {
@@ -149,15 +208,17 @@ class MyHomePage extends ConsumerWidget {
                     userRef.doc(FirebaseAuth.instance.currentUser!.phoneNumber).set({
                       'name': nameController.text.trim(),
                       'address': addressController.text.trim(),
+                      'phone': FirebaseAuth.instance.currentUser!.phoneNumber,
+                      'id': FirebaseAuth.instance.currentUser!.uid,
                     }).then((_) {
                       Navigator.pop(context); // close the Alert Dialog
                       ScaffoldMessenger.of(scaffoldState.currentContext!)
-                          .showSnackBar(SnackBar(
+                          .showSnackBar(const SnackBar(
                         content: Text('Данные успешно сохранены!'),
                       ));
                       // navigate to home
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => HomePage()),
+                        MaterialPageRoute(builder: (context) => const HomePage()),
                             (Route<dynamic> route) => false,
                       );
                     }).catchError((e) {
@@ -168,7 +229,7 @@ class MyHomePage extends ConsumerWidget {
                   } else {
                     // show error message for fields containing only spaces
                     ScaffoldMessenger.of(scaffoldState.currentContext!)
-                        .showSnackBar(SnackBar(
+                        .showSnackBar(const SnackBar(
                       content: Text('Пожалуйста, введите корректные данные!'),
                     ));
                   }
@@ -183,19 +244,19 @@ class MyHomePage extends ConsumerWidget {
       }
     } else {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => const HomePage()),
             (Route<dynamic> route) => false,
       );
     }
   }
 
   @override
-  Widget build(BuildContext context, watch) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SafeArea(
       child: Scaffold(
         key: scaffoldState,
         body: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/my_bg.png'),
               fit: BoxFit.cover,
@@ -208,12 +269,12 @@ class MyHomePage extends ConsumerWidget {
                 padding: const EdgeInsets.all(16),
                 width: MediaQuery.of(context).size.width,
                 child: Consumer(
-                  builder: (context, watch, child) {
-                    var userState = watch(checkLoginStateProvider);
+                  builder: (context, ref, child) {
+                    var userState = ref.watch(checkLoginStateProvider);
 
-                    print("User State: ${userState.data?.value}");
+                    //print("User State: ${userState.data?.value}");
 
-                    if (userState.data?.value == LOGIN_STATE.LOGGED) {
+                    if (userState.value == LOGIN_STATE.LOGGED) {
                       // Пользователь зарегистрирован, перейти на главную страницу
                       Future.microtask(() {
                         Navigator.pushNamedAndRemoveUntil(
@@ -224,15 +285,15 @@ class MyHomePage extends ConsumerWidget {
                       return userState.when(
                         data: (loginState) {
                           if (loginState == LOGIN_STATE.LOGGED) {
-                            return CircularProgressIndicator(); // Покажет индикатор загрузки
+                            return const CircularProgressIndicator(); // Покажет индикатор загрузки
                           } else {
                             return ElevatedButton.icon(
-                              onPressed: () => processLogin(context),
-                              icon: Icon(
+                              onPressed: () => processLogin(ref, context),
+                              icon: const Icon(
                                 Icons.phone,
                                 color: Colors.white,
                               ),
-                              label: Text(
+                              label: const Text(
                                 'Регистрация по номеру телефона',
                                 style: TextStyle(color: Colors.white),
                               ),
@@ -242,10 +303,10 @@ class MyHomePage extends ConsumerWidget {
                             );
                           }
                         },
-                        loading: () => CircularProgressIndicator(), // Покажет индикатор загрузки в случае ожидания данных
+                        loading: () => const CircularProgressIndicator(), // Покажет индикатор загрузки в случае ожидания данных
                         error: (error, stackTrace) {
-                          print("Ошибка: $error");
-                          return Text('Что-то пошло не так');
+                          //print("Ошибка: $error");
+                          return const Text('Что-то пошло не так');
                         },
                       );
                     }
@@ -259,23 +320,22 @@ class MyHomePage extends ConsumerWidget {
     );
   }
 
-  final checkLoginStateProvider =
-  FutureProvider<LOGIN_STATE>((ref) async {
+  final checkLoginStateProvider = FutureProvider<LOGIN_STATE>((ref) async {
     try {
-      var token = await FirebaseAuth.instance.currentUser!.getIdToken();
-      ref.read(userToken).state = token!;
-      CollectionReference userRef =
-      FirebaseFirestore.instance.collection('User');
-      DocumentSnapshot snapshotUser = await userRef
-          .doc(FirebaseAuth.instance.currentUser!.phoneNumber)
-          .get();
-      // Force reload state
-      ref.read(forceReload).state = true;
-      return snapshotUser.exists
-          ? LOGIN_STATE.LOGGED
-          : LOGIN_STATE.NOT_LOGIN;
+      var user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        var token = await user.getIdToken();
+        ref.read(userToken.notifier).state = token!;
+        CollectionReference userRef = FirebaseFirestore.instance.collection('User');
+        DocumentSnapshot snapshotUser = await userRef.doc(user.phoneNumber).get();
+        // Force reload state
+        ref.read(forceReload.notifier).state = true;
+        return snapshotUser.exists ? LOGIN_STATE.LOGGED : LOGIN_STATE.NOT_LOGIN;
+      } else {
+        return LOGIN_STATE.NOT_LOGIN;
+      }
     } catch (e) {
-      print(e);
+      //print(e);
       return LOGIN_STATE.NOT_LOGIN;
     }
   });

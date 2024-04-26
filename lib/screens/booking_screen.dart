@@ -19,33 +19,35 @@ import '../model/booking_model.dart';
 import '../model/service_model.dart';
 
 class BookingScreen extends ConsumerWidget {
-  GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+
+  BookingScreen({super.key});
 
   @override
-  Widget build(BuildContext context, watch) {
-    var step = watch(currentStep).state;
-    var cityWatch = watch(selectedCity).state;
-    var salonWatch = watch(selectedSalon).state;
-    var barberWatch = watch(selectedBarber).state;
-    var dateWatch = watch(selectedDate).state;
-    var timeWatch = watch(selectedTime).state;
-    var timeSlotWatch = watch(selectedTimeSlot).state;
-    var selectedServicesList = watch(selectedServices).state;
+  Widget build(BuildContext context, WidgetRef ref) {
+    var step = ref.watch(currentStep);
+    var cityWatch = ref.watch(selectedCity);
+    var salonWatch = ref.watch(selectedSalon);
+    var barberWatch = ref.watch(selectedBarber);
+    var dateWatch = ref.watch(selectedDate);
+    var timeWatch = ref.watch(selectedTime);
+    var timeSlotWatch = ref.watch(selectedTimeSlot);
+    var selectedServicesList = ref.watch(selectedServices);
     return SafeArea(
         child: Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Запись',
           style: TextStyle(
             color: Colors.white, // Здесь указывается цвет текста
           ),
         ),
-        backgroundColor: Color(0xFF383838),
-        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: const Color(0xFF383838),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       resizeToAvoidBottomInset: true,
-      backgroundColor: Color(0xFFFDF9EE),
+      backgroundColor: const Color(0xFFFDF9EE),
       body: Column(
         children: [
           //Step
@@ -54,26 +56,26 @@ class BookingScreen extends ConsumerWidget {
             direction: Axis.horizontal,
             enableNextPreviousButtons: false,
             enableStepTapping: false,
-            numbers: [1, 2, 3, 4, 5, 6],
+            numbers: const [1, 2, 3, 4, 5, 6],
             stepColor: Colors.black,
             activeStepColor: Colors.grey,
-            numberStyle: TextStyle(color: Colors.white),
+            numberStyle: const TextStyle(color: Colors.white),
           ),
           //Screen
           Expanded(
             flex: 10,
             child: step == 1
-                ? displayCityList()
+                ? displayCityList(ref)
                 : step == 2
-                    ? displaySalon(cityWatch.name)
+                    ? displaySalon(ref, cityWatch.name)
                     : step == 3
-                        ? displayBarber(salonWatch)
+                        ? displayBarber(ref, salonWatch)
                         : step == 4
-                            ? displayServices(context, watch)
+                            ? displayServices(ref, context)
                             : step == 5
-                                ? displayTimeSlot(context, barberWatch)
+                                ? displayTimeSlot(ref, context, barberWatch)
                                 : step == 6
-                                    ? displayConfirm(context)
+                                    ? displayConfirm(ref, context)
                                     : Container(),
           ),
           //Button
@@ -89,31 +91,38 @@ class BookingScreen extends ConsumerWidget {
                       child: ElevatedButton(
                     onPressed: step == 1
                         ? null
-                        : () => context.read(currentStep).state--,
-                    child: Text('Предыдущая'),
+                        : () => ref.read(currentStep.notifier).state--,
+                    child: const Text('Предыдущая'),
                   )),
-                  SizedBox(
+                  const SizedBox(
                     width: 30,
                   ),
                   Expanded(
                       child: ElevatedButton(
                     onPressed: (step == 1 &&
-                                context.read(selectedCity).state.name == '') ||
+                                ref.read(selectedCity.notifier).state.name ==
+                                    '') ||
                             (step == 2 &&
-                                context.read(selectedSalon).state.docId ==
+                                ref
+                                        .read(selectedSalon.notifier)
+                                        .state
+                                        .docId ==
                                     '') ||
                             (step == 3 &&
-                                context.read(selectedBarber).state.docId ==
+                                ref.read(selectedBarber.notifier).state.docId ==
                                     '') ||
                             (step == 4 &&
-                                context.read(selectedServices).state.isEmpty) ||
+                                ref
+                                    .read(selectedServices.notifier)
+                                    .state
+                                    .isEmpty) ||
                             (step == 5 &&
-                                context.read(selectedTimeSlot).state == -1)
+                                ref.read(selectedTimeSlot.notifier).state == -1)
                         ? null
                         : step == 6
                             ? null
-                            : () => context.read(currentStep).state++,
-                    child: Text('Следующая'),
+                            : () => ref.read(currentStep.notifier).state++,
+                    child: const Text('Следующая'),
                   )),
                 ],
               ),
@@ -124,90 +133,92 @@ class BookingScreen extends ConsumerWidget {
     ));
   }
 
-  displayCityList() {
+  displayCityList(WidgetRef ref) {
     return FutureBuilder(
         future: getCities(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return Center(
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
               child: CircularProgressIndicator(),
             );
-          else {
+          } else {
             var cities = snapshot.data as List<CityModel>;
-            if (cities.length == 0)
-              return Center(
+            if (cities.isEmpty) {
+              return const Center(
                 child: Text('Не удалось загрузить список городов'),
               );
-            else
+            } else {
               return ListView.builder(
                   itemCount: cities.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
-                      onTap: () => context.read(selectedCity).state =
+                      onTap: () => ref.read(selectedCity.notifier).state =
                           CityModel(name: cities[index].name),
                       child: Card(
                         child: ListTile(
-                          leading: Icon(
+                          leading: const Icon(
                             Icons.home_work,
                             color: Colors.black,
                           ),
-                          trailing: context.read(selectedCity).state.name ==
-                                  cities[index].name
-                              ? Icon(Icons.check)
-                              : null,
+                          trailing:
+                              ref.read(selectedCity.notifier).state.name ==
+                                      cities[index].name
+                                  ? const Icon(Icons.check)
+                                  : null,
                           title: Text(
-                            '${cities[index].name}',
+                            cities[index].name,
                             style: GoogleFonts.robotoMono(),
                           ),
                         ),
                       ),
                     );
                   });
+            }
           }
         });
   }
 
-  displaySalon(String cityName) {
+  displaySalon(WidgetRef ref, String cityName) {
     return FutureBuilder(
       future: getSalonByCity(cityName),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting)
-          return Center(
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
             child: CircularProgressIndicator(),
           );
-        else {
+        } else {
           var salons = snapshot.data as List<SalonModel>;
-          if (salons.length == 0)
-            return Center(
+          if (salons.isEmpty) {
+            return const Center(
               child: Text('Не удалось загрузить список салонов'),
             );
-          else
+          } else {
             return ListView.builder(
               itemCount: salons.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
                     // Опустошаем список услуг при выборе нового салона
-                    context.read(selectedServices).state = [];
+                    ref.read(selectedServices.notifier).state = [];
                     // Устанавливаем выбранный салон
-                    context.read(selectedSalon).state = salons[index];
+                    ref.read(selectedSalon.notifier).state = salons[index];
                   },
                   child: Card(
                     child: ListTile(
-                      leading: Icon(
+                      leading: const Icon(
                         Icons.home_outlined,
                         color: Colors.black,
                       ),
-                      trailing: context.read(selectedSalon).state.docId ==
-                          salons[index].docId
-                          ? Icon(Icons.check)
+                      trailing: ref.read(selectedSalon.notifier).state.docId ==
+                              salons[index].docId
+                          ? const Icon(Icons.check)
                           : null,
                       title: Text(
-                        '${salons[index].name}',
+                        salons[index].name,
                         style: GoogleFonts.robotoMono(),
                       ),
                       subtitle: Text(
-                        '${salons[index].address}',
+                        salons[index].address,
                         style: GoogleFonts.robotoMono(
                           fontStyle: FontStyle.italic,
                         ),
@@ -217,44 +228,46 @@ class BookingScreen extends ConsumerWidget {
                 );
               },
             );
+          }
         }
       },
     );
   }
 
-  displayBarber(SalonModel salonModel) {
+  displayBarber(WidgetRef ref, SalonModel salonModel) {
     return FutureBuilder(
         future: getBarbersBySalon(salonModel),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
-            return Center(
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
               child: CircularProgressIndicator(),
             );
-          else {
+          } else {
             var barbers = snapshot.data != null
                 ? List<BarberModel>.from(snapshot.data as Iterable)
                 : [];
-            if (barbers.length == 0)
-              return Center(
+            if (barbers.isEmpty) {
+              return const Center(
                 child: Text('Список парикмахеров пуст'),
               );
-            else
+            } else {
               return ListView.builder(
                   itemCount: barbers.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
-                      onTap: () =>
-                          context.read(selectedBarber).state = barbers[index],
+                      onTap: () => ref.read(selectedBarber.notifier).state =
+                          barbers[index],
                       child: Card(
                         child: ListTile(
-                          leading: Icon(
+                          leading: const Icon(
                             Icons.person,
                             color: Colors.black,
                           ),
-                          trailing: context.read(selectedBarber).state.docId ==
-                                  barbers[index].docId
-                              ? Icon(Icons.check)
-                              : null,
+                          trailing:
+                              ref.read(selectedBarber.notifier).state.docId ==
+                                      barbers[index].docId
+                                  ? const Icon(Icons.check)
+                                  : null,
                           title: Text(
                             '${barbers[index].name}',
                             style: GoogleFonts.robotoMono(),
@@ -267,7 +280,7 @@ class BookingScreen extends ConsumerWidget {
                             direction: Axis.horizontal,
                             itemCount: 5,
                             onRatingUpdate: (double value) {},
-                            itemBuilder: (context, _) => Icon(
+                            itemBuilder: (context, _) => const Icon(
                               Icons.star,
                               color: Colors.amber,
                             ),
@@ -277,22 +290,23 @@ class BookingScreen extends ConsumerWidget {
                       ),
                     );
                   });
+            }
           }
         });
   }
 
-  displayServices(BuildContext context, ScopedReader watch) {
-    var selectedServicesList = watch(selectedServices).state;
+  displayServices(WidgetRef ref, BuildContext context) {
+    var selectedServicesList = ref.watch(selectedServices);
     var totalPrice = calculateTotalPrice(selectedServicesList);
 
     return FutureBuilder(
-      future: getServices(context),
+      future: getServices(ref, context),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting)
-          return Center(
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
             child: CircularProgressIndicator(),
           );
-        else {
+        } else {
           var services = snapshot.data as List<ServiceModel>;
 
           return SingleChildScrollView(
@@ -306,7 +320,7 @@ class BookingScreen extends ConsumerWidget {
                               selected: selectedServicesList.contains(e),
                               selectedColor: Colors.blue,
                               label: Text('${e.name}: ${e.price} руб.'),
-                              labelStyle: TextStyle(color: Colors.white),
+                              labelStyle: const TextStyle(color: Colors.white),
                               backgroundColor: Colors.teal,
                               onSelected: (isSelected) {
                                 var list = selectedServicesList.toList();
@@ -315,7 +329,8 @@ class BookingScreen extends ConsumerWidget {
                                 } else {
                                   list.remove(e);
                                 }
-                                context.read(selectedServices).state = list;
+                                ref.read(selectedServices.notifier).state =
+                                    list;
                               },
                             ),
                           ))
@@ -334,12 +349,13 @@ class BookingScreen extends ConsumerWidget {
         0.0, (value, element) => double.parse(value.toString()) + element);
   }
 
-  displayTimeSlot(BuildContext context, BarberModel barberModel) {
-    var now = context.read(selectedDate).state;
+  displayTimeSlot(
+      WidgetRef ref, BuildContext context, BarberModel barberModel) {
+    var now = ref.read(selectedDate.notifier).state;
     return Column(
       children: [
         Container(
-          color: Color(0xFF008577),
+          color: const Color(0xFF008577),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -350,7 +366,7 @@ class BookingScreen extends ConsumerWidget {
                   child: Column(
                     children: [
                       Text(
-                        '${DateFormat.MMMM('ru').format(now)}',
+                        DateFormat.MMMM('ru').format(now),
                         style: GoogleFonts.robotoMono(color: Colors.white54),
                       ),
                       Text(
@@ -361,7 +377,7 @@ class BookingScreen extends ConsumerWidget {
                             fontSize: 22),
                       ),
                       Text(
-                        '${DateFormat.EEEE('ru').format(now)}',
+                        DateFormat.EEEE('ru').format(now),
                         style: GoogleFonts.robotoMono(color: Colors.white54),
                       ),
                     ],
@@ -375,12 +391,13 @@ class BookingScreen extends ConsumerWidget {
                       showTitleActions: true,
                       minTime: DateTime.now(),
                       // Fix can't select current date
-                      maxTime: now.add(Duration(days: 31)),
-                      onConfirm: (date) => context.read(selectedDate).state =
-                          date); //next time you can choose is 31 days next
+                      maxTime: now.add(const Duration(days: 31)),
+                      onConfirm: (date) =>
+                          ref.read(selectedDate.notifier).state =
+                              date); //next time you can choose is 31 days next
                 },
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Icon(
@@ -395,53 +412,64 @@ class BookingScreen extends ConsumerWidget {
         ),
         Expanded(
           child: FutureBuilder(
-              future: getMaxAvailableTimeSlot(context.read(selectedDate).state),
+              future: getMaxAvailableTimeSlot(
+                  ref.read(selectedDate.notifier).state),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting)
-                  return Center(
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
-                else {
+                } else {
                   var maxTimeSlot = snapshot.data as int;
                   return FutureBuilder(
                     future: getTimeSlotOfBarber(
                         barberModel,
                         DateFormat('dd_MM_yyyy', 'ru')
-                            .format(context.read(selectedDate).state)),
+                            .format(ref.read(selectedDate.notifier).state)),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting)
-                        return Center(
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
                           child: CircularProgressIndicator(),
                         );
-                      else {
+                      } else {
                         var listTimeSlot = snapshot.data as List<int>;
                         return GridView.builder(
                             itemCount: TIME_SLOT.length,
                             gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 3),
                             itemBuilder: (context, index) => GestureDetector(
                                   onTap: maxTimeSlot > index ||
                                           listTimeSlot.contains(index)
                                       ? null
                                       : () {
-                                          context.read(selectedTime).state =
+                                          ref
+                                                  .read(selectedTime.notifier)
+                                                  .state =
                                               TIME_SLOT.elementAt(index);
-                                          context.read(selectedTimeSlot).state =
-                                              index;
+                                          ref
+                                              .read(selectedTimeSlot.notifier)
+                                              .state = index;
                                         },
                                   child: Card(
                                     color: listTimeSlot.contains(index)
                                         ? Colors.white10
                                         : maxTimeSlot > index
                                             ? Colors.white60
-                                            : context
-                                                        .read(selectedTime)
+                                            : ref
+                                                        .read(selectedTime
+                                                            .notifier)
                                                         .state ==
                                                     TIME_SLOT.elementAt(index)
                                                 ? Colors.white54
                                                 : Colors.white,
                                     child: GridTile(
+                                      header: ref
+                                                  .read(selectedTime.notifier)
+                                                  .state ==
+                                              TIME_SLOT.elementAt(index)
+                                          ? const Icon(Icons.check)
+                                          : null,
                                       child: Center(
                                         child: Column(
                                           crossAxisAlignment:
@@ -449,8 +477,7 @@ class BookingScreen extends ConsumerWidget {
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            Text(
-                                                '${TIME_SLOT.elementAt(index)}'),
+                                            Text(TIME_SLOT.elementAt(index)),
                                             Text(listTimeSlot.contains(index)
                                                 ? 'Занято'
                                                 : maxTimeSlot > index
@@ -459,11 +486,6 @@ class BookingScreen extends ConsumerWidget {
                                           ],
                                         ),
                                       ),
-                                      header:
-                                          context.read(selectedTime).state ==
-                                                  TIME_SLOT.elementAt(index)
-                                              ? Icon(Icons.check)
-                                              : null,
                                     ),
                                   ),
                                 ));
@@ -477,22 +499,28 @@ class BookingScreen extends ConsumerWidget {
     );
   }
 
-  confirmBooking(BuildContext context) async {
-    var hour = context.read(selectedTime).state.length <= 10
+  confirmBooking(WidgetRef ref, BuildContext context) async {
+    var hour = ref.read(selectedTime.notifier).state.length <= 10
         ? int.parse(
-            context.read(selectedTime).state.split(':')[0].substring(0, 1))
-        : int.parse(
-            context.read(selectedTime).state.split(':')[0].substring(0, 2));
+            ref.read(selectedTime.notifier).state.split(':')[0].substring(0, 1))
+        : int.parse(ref
+            .read(selectedTime.notifier)
+            .state
+            .split(':')[0]
+            .substring(0, 2));
 
-    var minutes = context.read(selectedTime).state.length <= 10
+    var minutes = ref.read(selectedTime.notifier).state.length <= 10
         ? int.parse(
-            context.read(selectedTime).state.split(':')[1].substring(0, 1))
-        : int.parse(
-            context.read(selectedTime).state.split(':')[1].substring(0, 2));
+            ref.read(selectedTime.notifier).state.split(':')[1].substring(0, 1))
+        : int.parse(ref
+            .read(selectedTime.notifier)
+            .state
+            .split(':')[1]
+            .substring(0, 2));
     var timeStamp = DateTime(
-            context.read(selectedDate).state.year,
-            context.read(selectedDate).state.month,
-            context.read(selectedDate).state.day,
+            ref.read(selectedDate.notifier).state.year,
+            ref.read(selectedDate.notifier).state.month,
+            ref.read(selectedDate.notifier).state.day,
             hour, //hour
             minutes //minutes
             )
@@ -500,101 +528,103 @@ class BookingScreen extends ConsumerWidget {
 
     // Check if booking exists
     bool bookingExists = await checkBookingExists(
-      context.read(selectedBarber).state.docId!,
-      context.read(selectedDate).state,
+      ref.read(selectedBarber.notifier).state.docId!,
+      ref.read(selectedDate.notifier).state,
       FirebaseAuth.instance.currentUser!.uid,
     );
 
     if (bookingExists) {
       // Show error message to the user
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content:
-        Text('Сначала удалите старую запись.'),
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Сначала удалите старую запись.'),
       ));
       return; // Exit the function to prevent further processing
     } else {
+      //Submit on FireStore
       var bookingModel = BookingModel(
-          barberId: context.read(selectedBarber).state.docId!,
-          barberName: context.read(selectedBarber).state.name,
-          cityBook: context.read(selectedCity).state.name,
+          barberId: ref.read(selectedBarber.notifier).state.docId!,
+          barberName: ref.read(selectedBarber.notifier).state.name,
+          cityBook: ref.read(selectedCity.notifier).state.name,
           customerId: FirebaseAuth.instance.currentUser!.uid,
-          customerName: context.read(userInformation).state.name,
+          customerName: ref.read(userInformation.notifier).state.name,
           customerPhone: FirebaseAuth.instance.currentUser!.phoneNumber!,
           done: false,
-          salonAddress: context.read(selectedSalon).state.address,
-          salonId: context.read(selectedSalon).state.docId!,
-          salonName: context.read(selectedSalon).state.name,
-          services: context.read(selectedServices).state,
-          slot: context.read(selectedTimeSlot).state,
-          totalPrice: calculateTotalPrice(context.read(selectedServices).state),
+          salonAddress: ref.read(selectedSalon.notifier).state.address,
+          salonId: ref.read(selectedSalon.notifier).state.docId!,
+          salonName: ref.read(selectedSalon.notifier).state.name,
+          services: ref.read(selectedServices.notifier).state,
+          slot: ref.read(selectedTimeSlot.notifier).state,
+          totalPrice:
+              calculateTotalPrice(ref.read(selectedServices.notifier).state),
           timeStamp: timeStamp,
           time:
-          '${context.read(selectedTime).state} - ${DateFormat('dd/MM/yyyy').format(context.read(selectedDate).state)}');
+              '${ref.read(selectedTime.notifier).state} - ${DateFormat('dd/MM/yyyy').format(ref.read(selectedDate.notifier).state)}');
 
       var batch = FirebaseFirestore.instance.batch();
 
-      DocumentReference barberBooking = context
-          .read(selectedBarber)
+      DocumentReference barberBooking = ref
+          .read(selectedBarber.notifier)
           .state
           .reference!
-          .collection(
-          '${DateFormat('dd_MM_yyyy').format(context.read(selectedDate).state)}')
-          .doc(context.read(selectedTimeSlot).state.toString());
+          .collection(DateFormat('dd_MM_yyyy')
+              .format(ref.read(selectedDate.notifier).state))
+          .doc(ref.read(selectedTimeSlot.notifier).state.toString());
       DocumentReference userBooking = FirebaseFirestore.instance
           .collection('User')
           .doc(FirebaseAuth.instance.currentUser!.phoneNumber!)
           .collection(
-          'Booking_${FirebaseAuth.instance.currentUser!.uid}') //For secure info
+              'Booking_${FirebaseAuth.instance.currentUser!.uid}') //For secure info
           .doc(
-          '${context.read(selectedBarber).state.docId}_${DateFormat('dd_MM_yyyy').format(context.read(selectedDate).state)}');
+              '${ref.read(selectedBarber.notifier).state.docId}_${DateFormat('dd_MM_yyyy').format(ref.read(selectedDate.notifier).state)}');
 
       //Set for batch
       batch.set(barberBooking, bookingModel.toJson());
       batch.set(userBooking, bookingModel.toJson());
       batch.commit().then((value) async {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(scaffoldKey.currentContext!)
+            .showSnackBar(const SnackBar(
           content: Text('Запись оформлена'),
         ));
+        //Create Event
         final Event event = Event(
             title: 'Запись на стрижку',
             description:
-            'Запись на стрижку ${context.read(selectedTime).state} - '
-                '${DateFormat('dd/MMMM/yyyy', 'ru').format(context.read(selectedDate).state)}',
-            location: '${context.read(selectedSalon).state.address}',
+                'Запись на стрижку ${ref.read(selectedTime.notifier).state} - '
+                '${DateFormat('dd/MMMM/yyyy', 'ru').format(ref.read(selectedDate.notifier).state)}',
+            location: ref.read(selectedSalon.notifier).state.address,
             startDate: DateTime(
-                context.read(selectedDate).state.year,
-                context.read(selectedDate).state.month,
-                context.read(selectedDate).state.day,
+                ref.read(selectedDate.notifier).state.year,
+                ref.read(selectedDate.notifier).state.month,
+                ref.read(selectedDate.notifier).state.day,
                 hour,
                 minutes),
             endDate: DateTime(
-                context.read(selectedDate).state.year,
-                context.read(selectedDate).state.month,
-                context.read(selectedDate).state.day,
+                ref.read(selectedDate.notifier).state.year,
+                ref.read(selectedDate.notifier).state.month,
+                ref.read(selectedDate.notifier).state.day,
                 hour,
                 minutes + 30),
-            iosParams: IOSParams(reminder: Duration(minutes: 30)),
-            androidParams: AndroidParams(emailInvites: []));
+            iosParams: const IOSParams(reminder: Duration(minutes: 30)),
+            androidParams: const AndroidParams(emailInvites: []));
         Add2Calendar.addEvent2Cal(event).then((value) {});
 
         //Reset value
-        context.read(selectedDate).state = DateTime.now();
-        context.read(selectedBarber).state = BarberModel();
-        context.read(selectedCity).state = CityModel(name: '');
-        context.read(selectedSalon).state = SalonModel(name: '', address: '');
-        context.read(selectedServices).state = List<ServiceModel>.empty(growable: true);
-        context.read(currentStep).state = 1;
-        context.read(selectedTime).state = '';
-        context.read(selectedTimeSlot).state = -1;
-
-        //Create Event
+        ref.read(selectedDate.notifier).state = DateTime.now();
+        ref.read(selectedBarber.notifier).state = BarberModel();
+        ref.read(selectedCity.notifier).state = CityModel(name: '');
+        ref.read(selectedSalon.notifier).state =
+            SalonModel(name: '', address: '');
+        ref.read(selectedServices.notifier).state =
+            List<ServiceModel>.empty(growable: true);
+        ref.read(currentStep.notifier).state = 1;
+        ref.read(selectedTime.notifier).state = '';
+        ref.read(selectedTimeSlot.notifier).state = -1;
       });
-      //Submit on FireStore
     }
   }
 
-  displayConfirm(BuildContext context) {
+  displayConfirm(WidgetRef ref, BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -604,137 +634,145 @@ class BookingScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(24),
             child: Image.asset('assets/images/logo.png'),
           ),
-          Container(
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Спасибо, что воспользовались нашими услугами!'
-                            .toUpperCase(),
-                        style:
-                            GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Информация о записи'.toUpperCase(),
-                        style: GoogleFonts.robotoMono(),
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.calendar_today),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            '${context.read(selectedTime).state} - ${DateFormat('dd/MMMM/yyyy', 'ru').format(context.read(selectedDate).state)}'
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text(
+                      'Спасибо, что воспользовались нашими услугами!'
+                          .toUpperCase(),
+                      style:
+                          GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Информация о записи'.toUpperCase(),
+                      style: GoogleFonts.robotoMono(),
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_today),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          '${ref.read(selectedTime.notifier).state} - ${DateFormat('dd/MMMM/yyyy', 'ru').format(ref.read(selectedDate.notifier).state)}'
+                              .toUpperCase(),
+                          style: GoogleFonts.robotoMono(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.person),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          ref
+                              .read(selectedBarber.notifier)
+                              .state
+                              .name
+                              .toUpperCase(),
+                          style: GoogleFonts.robotoMono(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    const Divider(
+                      thickness: 1,
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.home),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          ref
+                              .read(selectedSalon.notifier)
+                              .state
+                              .name
+                              .toUpperCase(),
+                          style: GoogleFonts.robotoMono(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Flexible(
+                          child: Text(
+                            ref
+                                .read(selectedSalon.notifier)
+                                .state
+                                .address
                                 .toUpperCase(),
                             style: GoogleFonts.robotoMono(),
                           ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.person),
-                          SizedBox(
-                            width: 10,
+                        )
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.content_cut),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (var selectedService
+                                  in ref.read(selectedServices.notifier).state)
+                                Text(
+                                  '${selectedService.name}: ${selectedService.price} руб.',
+                                  style: GoogleFonts.robotoMono(),
+                                ),
+                            ],
                           ),
-                          Text(
-                            '${context.read(selectedBarber).state.name}'
-                                .toUpperCase(),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.money),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Flexible(
+                          child: Text(
+                            'Общая стоимость: ${calculateTotalPrice(ref.read(selectedServices.notifier).state)} руб.',
                             style: GoogleFonts.robotoMono(),
                           ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Divider(
-                        thickness: 1,
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.home),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            '${context.read(selectedSalon).state.name}'
-                                .toUpperCase(),
-                            style: GoogleFonts.robotoMono(),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Flexible(
-                            child: Text(
-                              '${context.read(selectedSalon).state.address}'
-                                  .toUpperCase(),
-                              style: GoogleFonts.robotoMono(),
-                            ),
-                          )
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.content_cut),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                for (var selectedService
-                                    in context.read(selectedServices).state)
-                                  Text(
-                                    '${selectedService.name}: ${selectedService.price} руб.',
-                                    style: GoogleFonts.robotoMono(),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.money),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Flexible(
-                            child: Text(
-                              'Общая стоимость: ${calculateTotalPrice(context.read(selectedServices).state)} руб.',
-                              style: GoogleFonts.robotoMono(),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      ElevatedButton(
-                        onPressed: () => confirmBooking(context),
-                        child: Text('Подтвердить'),
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.black26)),
-                      )
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    ElevatedButton(
+                      onPressed: () => confirmBooking(ref, context),
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.black26)),
+                      child: const Text('Подтвердить',
+                          style: TextStyle(color: Colors.white)),
+                    )
+                  ],
                 ),
               ),
             ),
@@ -750,8 +788,7 @@ class BookingScreen extends ConsumerWidget {
         .collection('User')
         .doc(FirebaseAuth.instance.currentUser!.phoneNumber!)
         .collection('Booking_$userId')
-        .doc(
-        '${barberId}_${DateFormat('dd_MM_yyyy').format(date)}');
+        .doc('${barberId}_${DateFormat('dd_MM_yyyy').format(date)}');
 
     var userBookingSnapshot = await userBookingReference.get();
 
