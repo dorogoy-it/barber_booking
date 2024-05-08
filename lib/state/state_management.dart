@@ -47,3 +47,6 @@ final selectedBooking = StateProvider<BookingModel>((ref) => BookingModel(
     totalPrice: 0));
 final selectedServices =
     StateProvider<List<ServiceModel>>((ref) => List<ServiceModel>.empty(growable: true));
+
+//Loading
+final isLoading = StateProvider((ref) => false);

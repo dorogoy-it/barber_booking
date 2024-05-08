@@ -52,13 +52,16 @@ dependencies:
   carousel_slider: any
   im_stepper: any
   flutter_rating_bar: any
-  intl: ^0.19.0
+  intl: ^0.18.1
   ntp: any
   add_2_calendar: any
   chips_choice: any
   mailer: any
   flutter_riverpod: ^2.5.1
   shared_preferences: ^2.2.3
+  firebase_messaging: ^14.9.1
+  flutter_local_notifications: ^17.1.2
+  dio: any
 
 
 dev_dependencies:

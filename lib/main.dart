@@ -2,37 +2,61 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_ui/flutter_auth_ui.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:untitled2/screens/add_admin_screen.dart';
-import 'package:untitled2/screens/add_barber_screen.dart';
-import 'package:untitled2/screens/admin_home_screen.dart';
-import 'package:untitled2/screens/booking_screen.dart';
-import 'package:untitled2/screens/delete_booking_screen.dart';
-import 'package:untitled2/screens/done_deleting_screen.dart';
-import 'package:untitled2/screens/done_services_screens.dart';
-import 'package:untitled2/screens/edit_salon_info.dart';
-import 'package:untitled2/screens/edit_salon_services.dart';
-import 'package:untitled2/screens/home_screen.dart';
-import 'package:untitled2/screens/remove_barber_screen.dart';
-import 'package:untitled2/screens/reschedule_booking_screen.dart';
-import 'package:untitled2/screens/staff_home_screen.dart';
-import 'package:untitled2/screens/user_history_screen.dart';
+import 'package:untitled2/fcm/fcm_background_handler.dart';
+import 'package:untitled2/fcm/fcm_notification_handler.dart';
 import 'package:untitled2/state/state_management.dart';
+import 'package:untitled2/ui/add_admin_screen.dart';
+import 'package:untitled2/ui/add_barber_screen.dart';
+import 'package:untitled2/ui/admin_home_screen.dart';
+import 'package:untitled2/ui/barber_booking_history_screen.dart';
+import 'package:untitled2/ui/booking_screen.dart';
+import 'package:untitled2/ui/delete_booking_screen.dart';
+import 'package:untitled2/ui/done_deleting_screen.dart';
+import 'package:untitled2/ui/done_services_screens.dart';
+import 'package:untitled2/ui/edit_salon_info.dart';
+import 'package:untitled2/ui/edit_salon_services.dart';
+import 'package:untitled2/ui/home_screen.dart';
+import 'package:untitled2/ui/remove_barber_screen.dart';
+import 'package:untitled2/ui/reschedule_booking_screen.dart';
+import 'package:untitled2/ui/staff_home_screen.dart';
+import 'package:untitled2/ui/user_history_screen.dart';
 import 'package:untitled2/utils/utils.dart';
+import 'package:untitled2/view_model/main/main_view_model_imp.dart';
 import 'firebase_options.dart';
-import 'model/user_model.dart';
+
+FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
+AndroidNotificationChannel? channel;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  //Setup Firebase
+  FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
+
+  //Flutter Local Notifications
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  channel = const AndroidNotificationChannel(
+      'com.example.untitled2', 'Barber Booking App',
+      importance: Importance.max);
+
+  await flutterLocalNotificationsPlugin!
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel!);
   runApp(const ProviderScope(child: MyApp()));
+
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true, badge: true, sound: true);
 }
 
 class MyApp extends StatelessWidget {
@@ -95,7 +119,7 @@ class MyApp extends StatelessWidget {
           case '/staffHome':
             return PageTransition(
                 settings: settings,
-                child: const StaffHome(),
+                child: StaffHome(),
                 type: PageTransitionType.fade);
           case '/doneService':
             return PageTransition(
@@ -105,7 +129,7 @@ class MyApp extends StatelessWidget {
           case '/home':
             return PageTransition(
                 settings: settings,
-                child: const HomePage(),
+                child: HomePage(),
                 type: PageTransitionType.fade);
           case '/history':
             return PageTransition(
@@ -116,6 +140,11 @@ class MyApp extends StatelessWidget {
             return PageTransition(
                 settings: settings,
                 child: BookingScreen(),
+                type: PageTransitionType.fade);
+          case '/bookingHistory':
+            return PageTransition(
+                settings: settings,
+                child: BarberHistoryScreen(),
                 type: PageTransitionType.fade);
 
           default:
@@ -130,131 +159,49 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends ConsumerWidget {
-  final GlobalKey<ScaffoldState> scaffoldState = GlobalKey();
+class MyHomePage extends StatefulWidget {
+  final scaffoldState = GlobalKey<ScaffoldState>();
 
   MyHomePage({super.key});
 
-  processLogin(WidgetRef ref, BuildContext context) async {
-    var user = FirebaseAuth.instance.currentUser;
+  final mainViewModel = MainViewModelImp();
 
-    if (user == null) {
-      try {
-        await FlutterAuthUi.startUi(
-            items: [AuthUiProvider.phone],
-            tosAndPrivacyPolicy: const TosAndPrivacyPolicy(
-                tosUrl: 'https://google.com',
-                privacyPolicyUrl: 'https://google.com'),
-            androidOption: const AndroidOption(
-                enableSmartLock: false, showLogo: true, overrideTheme: true));
+  @override
+  MyHomePageState createState() => MyHomePageState();
+}
 
-        // refresh state
-        ref.read(userLogged.notifier).state = FirebaseAuth.instance.currentUser;
+class MyHomePageState extends State<MyHomePage>{
 
-        // check if the user exists in the 'User' collection
-        CollectionReference userRef = FirebaseFirestore.instance.collection('User');
-        DocumentSnapshot snapshotUser = await userRef.doc(FirebaseAuth.instance.currentUser!.phoneNumber).get();
+  @override
+  void initState() {
+    super.initState();
 
-        if (snapshotUser.exists) {
-          // user exists, navigate to home
-          UserModel userModel = UserModel.fromJson(snapshotUser.data() as Map<String, dynamic>);
+    //Get token, subscribe... etc here
 
-          // Сохраните userModel в провайдере userInformation
-          ref.read(userInformation.notifier).state = userModel;
+    //Get token
+    FirebaseMessaging.instance.getToken().then((value) => print('Token $value'));
 
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const HomePage()),
-                (Route<dynamic> route) => false,
-          );
-        } else {
-          // user does not exist, show Alert Dialog for user input
-          var nameController = TextEditingController();
-          var addressController = TextEditingController();
-
-          Alert(
-            context: context,
-            title: 'Введите данные',
-            content: Column(
-              children: [
-                TextField(
-                  decoration: const InputDecoration(
-                      icon: Icon(Icons.account_circle),
-                      labelText: 'Имя'
-                  ),
-                  controller: nameController,
-                ),
-                TextField(
-                  decoration: const InputDecoration(
-                      icon: Icon(Icons.home),
-                      labelText: 'Адрес'
-                  ),
-                  controller: addressController,
-                )
-              ],
-            ),
-            buttons: [
-              DialogButton(
-                child: const Text('Отмена'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              DialogButton(
-                child: const Text('Сохранить'),
-                onPressed: () {
-                  // check if the input fields contain non-space characters
-                  if (nameController.text.trim().isNotEmpty && addressController.text.trim().isNotEmpty) {
-                    // save user data to 'User' collection
-                    userRef.doc(FirebaseAuth.instance.currentUser!.phoneNumber).set({
-                      'name': nameController.text.trim(),
-                      'address': addressController.text.trim(),
-                      'phone': FirebaseAuth.instance.currentUser!.phoneNumber,
-                      'id': FirebaseAuth.instance.currentUser!.uid,
-                    }).then((_) {
-                      Navigator.pop(context); // close the Alert Dialog
-                      ScaffoldMessenger.of(scaffoldState.currentContext!)
-                          .showSnackBar(const SnackBar(
-                        content: Text('Данные успешно сохранены!'),
-                      ));
-                      // navigate to home
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => const HomePage()),
-                            (Route<dynamic> route) => false,
-                      );
-                    }).catchError((e) {
-                      // handle error
-                      ScaffoldMessenger.of(scaffoldState.currentContext!)
-                          .showSnackBar(SnackBar(content: Text('$e')));
-                    });
-                  } else {
-                    // show error message for fields containing only spaces
-                    ScaffoldMessenger.of(scaffoldState.currentContext!)
-                        .showSnackBar(const SnackBar(
-                      content: Text('Пожалуйста, введите корректные данные!'),
-                    ));
-                  }
-                },
-              ),
-            ],
-          ).show();
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(scaffoldState.currentContext!)
-            .showSnackBar(SnackBar(content: Text('$e')));
-      }
+    //Код в комментах работает, если пользователь уже авторизирован
+    //так как у приложения не планировалась кнопка выхода
+    //      FirebaseMessaging.instance.subscribeToTopic(FirebaseAuth.instance.currentUser!.uid)
+    //           .then((value) => print('Успех'));
+    if (FirebaseAuth.instance.currentUser != null) {
+      FirebaseMessaging.instance.subscribeToTopic(FirebaseAuth.instance.currentUser!.uid)
+          .then((value) => print('Успех'));
     } else {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const HomePage()),
-            (Route<dynamic> route) => false,
-      );
+      print('Пользователь не авторизован');
     }
+
+    //Setup message display
+    initFirebaseMessagingHandler(channel!);
+    
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        key: scaffoldState,
+        key: widget.scaffoldState,
         body: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
@@ -271,9 +218,6 @@ class MyHomePage extends ConsumerWidget {
                 child: Consumer(
                   builder: (context, ref, child) {
                     var userState = ref.watch(checkLoginStateProvider);
-
-                    //print("User State: ${userState.data?.value}");
-
                     if (userState.value == LOGIN_STATE.LOGGED) {
                       // Пользователь зарегистрирован, перейти на главную страницу
                       Future.microtask(() {
@@ -288,7 +232,8 @@ class MyHomePage extends ConsumerWidget {
                             return const CircularProgressIndicator(); // Покажет индикатор загрузки
                           } else {
                             return ElevatedButton.icon(
-                              onPressed: () => processLogin(ref, context),
+                              onPressed: () => widget.mainViewModel.processLogin(
+                                  ref, context, widget.scaffoldState),
                               icon: const Icon(
                                 Icons.phone,
                                 color: Colors.white,
@@ -298,12 +243,14 @@ class MyHomePage extends ConsumerWidget {
                                 style: TextStyle(color: Colors.white),
                               ),
                               style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(Colors.black),
+                                backgroundColor:
+                                MaterialStateProperty.all(Colors.black),
                               ),
                             );
                           }
                         },
-                        loading: () => const CircularProgressIndicator(), // Покажет индикатор загрузки в случае ожидания данных
+                        loading: () => const CircularProgressIndicator(),
+                        // Покажет индикатор загрузки в случае ожидания данных
                         error: (error, stackTrace) {
                           //print("Ошибка: $error");
                           return const Text('Что-то пошло не так');
@@ -326,8 +273,10 @@ class MyHomePage extends ConsumerWidget {
       if (user != null) {
         var token = await user.getIdToken();
         ref.read(userToken.notifier).state = token!;
-        CollectionReference userRef = FirebaseFirestore.instance.collection('User');
-        DocumentSnapshot snapshotUser = await userRef.doc(user.phoneNumber).get();
+        CollectionReference userRef =
+        FirebaseFirestore.instance.collection('User');
+        DocumentSnapshot snapshotUser =
+        await userRef.doc(user.phoneNumber).get();
         // Force reload state
         ref.read(forceReload.notifier).state = true;
         return snapshotUser.exists ? LOGIN_STATE.LOGGED : LOGIN_STATE.NOT_LOGIN;

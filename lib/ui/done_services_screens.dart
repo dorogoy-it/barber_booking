@@ -1,15 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:untitled2/model/booking_model.dart';
 import 'package:untitled2/state/state_management.dart';
-import '../cloud_firestore/all_salon_ref.dart';
+import 'package:untitled2/string/strings.dart';
+import 'package:untitled2/view_model/done_services/done_services_view_model_imp.dart';
 import '../utils/utils.dart';
 
 class DoneService extends ConsumerWidget {
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final doneServicesViewModel = DoneServicesViewModelImp();
 
   DoneService({super.key});
 
@@ -24,7 +25,7 @@ class DoneService extends ConsumerWidget {
         backgroundColor: const Color(0xFFDFDFDF),
         appBar: AppBar(
           title: const Text(
-            'Завершение оформления',
+            doneServicesText,
             style: TextStyle(
               color: Colors.white, // Здесь указывается цвет текста
             ),
@@ -37,7 +38,7 @@ class DoneService extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(8),
               child: FutureBuilder(
-                future: getDetailBooking(
+                future: doneServicesViewModel.displayDetailBooking(
                     ref, context, ref.read(selectedTimeSlot.notifier).state),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -241,7 +242,7 @@ class DoneService extends ConsumerWidget {
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(8),
               child: ElevatedButton(
-                onPressed: () => finishService(ref, context),
+                onPressed: () => doneServicesViewModel.finishService(ref, context, scaffoldKey),
                 child: Text(
                   'Завершить',
                   style: GoogleFonts.robotoMono(),
@@ -252,29 +253,5 @@ class DoneService extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  finishService(WidgetRef ref, BuildContext context) async {
-    var batch = FirebaseFirestore.instance.batch();
-    var barberBook = ref.read(selectedBooking.notifier).state;
-
-    var userBook = FirebaseFirestore.instance
-        .collection('User')
-        .doc(barberBook.customerPhone)
-        .collection('Booking_${barberBook.customerId}')
-        .doc(
-        '${barberBook.barberId}_${DateFormat('dd_MM_yyyy').format(DateTime.fromMillisecondsSinceEpoch(barberBook.timeStamp))}');
-    Map<String, dynamic> updateDone = {};
-    updateDone['done'] = true;
-
-    batch.update(userBook, updateDone);
-    batch.update(barberBook.reference!, updateDone);
-
-    batch.commit().then((value) {
-      ScaffoldMessenger.of(scaffoldKey.currentContext!)
-          .showSnackBar(const SnackBar(content: Text('Процесс успешно завершён')))
-          .closed
-          .then((v) => Navigator.of(context).pop());
-    });
   }
 }
