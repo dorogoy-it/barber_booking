@@ -36,7 +36,11 @@ Future<List<UserModel>> getUserProfilesToAdmin(BuildContext context, String phon
   var usersRef = FirebaseFirestore.instance.collection('User');
   var snapshot = await usersRef.get();
   for (var element in snapshot.docs) {
-    users.add(UserModel.fromJson(element.data()));
+    var user = UserModel.fromJson(element.data());
+    // Проверяем, что пользователь не является администратором или модератором
+    if (user.isStaff == false && user.isAdmin == false) {
+      users.add(user);
+    }
   }
   return users;
 }

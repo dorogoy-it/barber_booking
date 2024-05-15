@@ -128,8 +128,8 @@ class RescheduleBooking extends ConsumerWidget {
                               child: ElevatedButton(
                                 onPressed: (step == 1 &&
                                     ref.read(selectedUser.notifier).state.name == '') ||
-                                (step == 2 &&
-                                    ref.read(selectedCity.notifier).state.name == '') ||
+                                    (step == 2 &&
+                                        ref.read(selectedCity.notifier).state.name == '') ||
                                     (step == 3 &&
                                         ref.read(selectedSalon.notifier).state.docId ==
                                             '') ||
@@ -171,35 +171,34 @@ class RescheduleBooking extends ConsumerWidget {
             );
           } else {
             return ListView.builder(
-                itemCount: users.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () => ref.read(selectedUser.notifier).state =
-                        UserModel(name: users[index].name, address: users[index].address, phone: users[index].phone, id: users[index].id),
-                    child: Card(
-                      child: ListTile(
-                        leading: const Icon(
-                          Icons.person,
-                          color: Colors.black,
-                        ),
-                        trailing: ref.read(selectedUser.notifier).state.name ==
-                            users[index].name
-                            ? const Icon(Icons.check)
-                            : null,
-                        title: Text(
-                          users[index].name,
-                          style: GoogleFonts.robotoMono(),
-                        ),
-                        subtitle: Text(
-                          users[index].phone,
-                          style: GoogleFonts.robotoMono(
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    ref.read(selectedUser.notifier).state = users[index];
+                  },
+                  child: Card(
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.person,
+                        color: Colors.black,
+                      ),
+                      trailing: ref.watch(selectedUser.notifier).state.name == users[index].name
+                          ? const Icon(Icons.check)
+                          : null,
+                      title: Text(
+                        users[index].name,
+                        style: GoogleFonts.robotoMono(),
+                      ),
+                      subtitle: Text(
+                        users[index].phone,
+                        style: GoogleFonts.robotoMono(fontStyle: FontStyle.italic),
                       ),
                     ),
-                  );
-                });
+                  ),
+                );
+              },
+            );
           }
         }
       },
@@ -801,7 +800,8 @@ class RescheduleBooking extends ConsumerWidget {
                       style: ButtonStyle(
                           backgroundColor:
                           MaterialStateProperty.all(Colors.black26)),
-                      child: const Text('Подтвердить'),
+                      child: const Text('Подтвердить',
+                          style: TextStyle(color: Colors.white)),
                     )
                   ],
                 ),

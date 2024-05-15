@@ -18,8 +18,15 @@ class SalonEditScreenState extends ConsumerState<SalonEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Редактирование данных о салоне'),
+        title: const Text('Редактирование данных о салоне',
+          style: TextStyle(
+            color: Colors.white, // Здесь указывается цвет текста
+          ),),
+        backgroundColor: const Color(0xFF383838),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
+      resizeToAvoidBottomInset: true,
+      backgroundColor: const Color(0xFFFDF9EE),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('AllSalon')

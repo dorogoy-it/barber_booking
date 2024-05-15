@@ -22,8 +22,15 @@ class AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Добавить сотрудника'),
+        title: const Text('Добавить сотрудника',
+          style: TextStyle(
+            color: Colors.white, // Здесь указывается цвет текста
+          ),),
+        backgroundColor: const Color(0xFF383838),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
+      resizeToAvoidBottomInset: true,
+      backgroundColor: const Color(0xFFFDF9EE),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

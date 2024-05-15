@@ -1,4 +1,4 @@
-import 'package:untitled2/screens/reschedule_booking_screen.dart';
+import 'package:untitled2/ui/reschedule_booking_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';

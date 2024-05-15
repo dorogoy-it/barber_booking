@@ -1,0 +1,16 @@
+const cannotLoadCityText = 'Не удалось загрузить список городов';
+const barberEmptyText = 'Список парикмахеров пуст';
+const thankServiceText = 'Спасибо, что воспользовались нашими услугами!';
+const bookingInformationText = 'Информация о записи';
+const titleText = 'Запись на стрижку';
+const doneServicesText = 'Завершение оформления';
+const selectCityText = 'Выберите город';
+const selectSalonText = 'Выберите салон';
+const yourAppointmentText = 'Ваша запись';
+const staffHomeText = 'Домашняя страница сотрудника';
+const cannotLoadSalonListText = 'Не удалось загрузить список салонов';
+const fullText = 'Занято';
+const notAvailableText = 'Недоступно';
+const availableText = 'Доступно';
+const previousText = 'Предыдущая';
+const nextText = 'Следующая';

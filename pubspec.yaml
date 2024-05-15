@@ -54,11 +54,15 @@ dependencies:
   flutter_rating_bar: any
   intl: ^0.19.0
   ntp: any
-  add_2_calendar: any
+  add_2_calendar_new: ^1.0.3
   chips_choice: any
   mailer: any
   flutter_riverpod: ^2.5.1
   shared_preferences: ^2.2.3
+  firebase_messaging: ^14.9.1
+  flutter_local_notifications: ^17.1.2
+  dio: any
+  googleapis_auth: ^1.4.1
 
 
 dev_dependencies:

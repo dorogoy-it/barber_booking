@@ -1,18 +1,19 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled2/model/image_model.dart';
 import 'package:untitled2/state/state_management.dart';
-import '../cloud_firestore/banner_ref.dart';
-import '../cloud_firestore/lookbook_ref.dart';
+import 'package:untitled2/view_model/home/home_view_model_imp.dart';
 import '../cloud_firestore/user_ref.dart';
 import '../main.dart';
 import '../model/user_model.dart';
 
 class HomePage extends ConsumerWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
+  final homeViewModel = HomeViewModelImp();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,7 +39,7 @@ class HomePage extends ConsumerWidget {
                       child: Column(children: [
                         //user profile
                         FutureBuilder(
-                            future: getUserProfiles(ref, context,
+                            future: homeViewModel.displayUserProfile(ref, context,
                                 FirebaseAuth.instance.currentUser!
                                     .phoneNumber!),
                             builder: (context, snapshot) {
@@ -102,10 +103,7 @@ class HomePage extends ConsumerWidget {
                                         ),
                                         onPressed: () => signOut(context),
                                       ),
-                                      ref
-                                          .read(userInformation.notifier)
-                                          .state
-                                          .isStaff
+                                          homeViewModel.isStaff(ref, context)
                                           ? IconButton(
                                         icon: const Icon(
                                           Icons.admin_panel_settings,
@@ -116,10 +114,7 @@ class HomePage extends ConsumerWidget {
                                                 .pushNamed('/staffHome'),
                                       )
                                           : Container(),
-                                      ref
-                                          .read(userInformation.notifier)
-                                          .state
-                                          .isAdmin
+                                      homeViewModel.isAdmin(ref, context)
                                           ? IconButton(
                                         icon: const Icon(
                                           Icons.supervisor_account,
@@ -145,7 +140,7 @@ class HomePage extends ConsumerWidget {
                         ),
                         //Banner
                         FutureBuilder(
-                            future: getBanners(),
+                            future: homeViewModel.displayBanner(),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -186,7 +181,7 @@ class HomePage extends ConsumerWidget {
                           ),
                         ),
                         FutureBuilder(
-                            future: getLookbook(),
+                            future: homeViewModel.displayLookbook(),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -228,6 +223,17 @@ class HomePage extends ConsumerWidget {
   }
 
   Future<void> signOut(BuildContext context) async {
+    // Получите текущего пользователя перед выходом
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    // Отписка от топика, если пользователь был авторизован
+    if (currentUser != null) {
+      await FirebaseMessaging.instance.unsubscribeFromTopic(currentUser.uid)
+          .then((value) => print('Успешная отписка от топика'))
+          .catchError((error) => print('Ошибка отписки от топика: $error'));
+    }
+
+    // Выход из системы
     await FirebaseAuth.instance.signOut().then((value) =>
         Navigator.pushReplacement(
             context,
