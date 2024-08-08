@@ -189,7 +189,7 @@ class UserHistory extends ConsumerWidget {
                                                       fontWeight: FontWeight.bold),
                                                 ),
 
-                                                // Display services and prices
+                                                // Показываем услуги и цены
                                                 for (var service
                                                 in userBookings[index].services)
                                                   Row(
@@ -212,7 +212,7 @@ class UserHistory extends ConsumerWidget {
                                                 const Divider(
                                                   thickness: 1,
                                                 ),
-                                                // Display total price
+                                                // Выводим окончательную цену
                                                 Row(
                                                   mainAxisAlignment:
                                                   MainAxisAlignment
@@ -257,7 +257,7 @@ class UserHistory extends ConsumerWidget {
                                                       ),
                                                       DialogButton(
                                                         onPressed: () {
-                                                          Navigator.of(context).pop(); // ok
+                                                          Navigator.of(context).pop();
                                                           userHistoryViewModel.userCancelBooking(ref, context, userBookings[index]);
                                                         },
                                                         color: Colors.white,

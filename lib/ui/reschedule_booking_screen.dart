@@ -459,10 +459,9 @@ class RescheduleBooking extends ConsumerWidget {
                       locale: LocaleType.ru,
                       showTitleActions: true,
                       minTime: DateTime.now(),
-                      // Fix can't select current date
                       maxTime: now.add(const Duration(days: 31)),
                       onConfirm: (date) => ref.read(selectedDate.notifier).state =
-                          date); //next time you can choose is 31 days next
+                          date);
                 },
                 child: const Padding(
                   padding: EdgeInsets.all(8),
@@ -583,7 +582,7 @@ class RescheduleBooking extends ConsumerWidget {
     )
         .millisecondsSinceEpoch;
 
-    // Check if booking exists
+    // Проверяем, есть ли такая запись
     bool bookingExists = await checkBookingExists(
       ref.read(selectedBarber.notifier).state.docId!,
       ref.read(selectedDate.notifier).state,
@@ -592,14 +591,14 @@ class RescheduleBooking extends ConsumerWidget {
     );
 
     if (bookingExists) {
-      // Show error message to the user
+      // Показываем предупреждение пользователю
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content:
         Text('Сначала удалите старую запись.'),
       ));
-      return; // Exit the function to prevent further processing
+      return; // Выходим из функции, чтобы предовратить дальнейшее выполнение
     } else {
-      //Submit on FireStore
+      // Занесение в FireStore
       var bookingModel = BookingModel(
           barberId: ref.read(selectedBarber.notifier).state.docId!,
           barberName: ref.read(selectedBarber.notifier).state.name,
@@ -630,11 +629,11 @@ class RescheduleBooking extends ConsumerWidget {
           .collection('User')
           .doc(ref.read(selectedUser.notifier).state.phone)
           .collection(
-          'Booking_${ref.read(selectedUser.notifier).state.id}') //For secure info
+          'Booking_${ref.read(selectedUser.notifier).state.id}') // Для безопасного хранения
           .doc(
           '${ref.read(selectedBarber.notifier).state.docId}_${DateFormat('dd_MM_yyyy').format(ref.read(selectedDate.notifier).state)}');
 
-      //Set for batch
+      // Заворачиваем в batch
       batch.set(barberBooking, bookingModel.toJson());
       batch.set(userBooking, bookingModel.toJson());
       batch.commit().then((value) async {
@@ -643,7 +642,7 @@ class RescheduleBooking extends ConsumerWidget {
             .closed
             .then((v) => Navigator.of(context).pop());
 
-        //Reset value
+        // Обнуляем значения
         ref.read(selectedUser.notifier).state = UserModel(name: '', address: '', phone: '', id: '');
         ref.read(selectedDate.notifier).state = DateTime.now();
         ref.read(selectedBarber.notifier).state = BarberModel();
@@ -799,7 +798,7 @@ class RescheduleBooking extends ConsumerWidget {
                       onPressed: () => confirmBooking(ref, context),
                       style: ButtonStyle(
                           backgroundColor:
-                          MaterialStateProperty.all(Colors.black26)),
+                          WidgetStateProperty.all(Colors.black26)),
                       child: const Text('Подтвердить',
                           style: TextStyle(color: Colors.white)),
                     )

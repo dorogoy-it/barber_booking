@@ -128,12 +128,11 @@ class BookingViewModelImp implements BookingViewModel {
         ref.read(selectedDate.notifier).state.year,
         ref.read(selectedDate.notifier).state.month,
         ref.read(selectedDate.notifier).state.day,
-        hour, //hour
-        minutes //minutes
+        hour,
+        minutes
     )
         .millisecondsSinceEpoch;
 
-    // Check if booking exists
     bool bookingExists = await checkBookingExists(
       ref.read(selectedBarber.notifier).state.docId!,
       ref.read(selectedDate.notifier).state,
@@ -141,13 +140,11 @@ class BookingViewModelImp implements BookingViewModel {
     );
 
     if (bookingExists) {
-      // Show error message to the user
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Сначала удалите старую запись.'),
       ));
-      return; // Exit the function to prevent further processing
+      return;
     } else {
-      //Submit on FireStore
       var bookingModel = BookingModel(
           barberId: ref.read(selectedBarber.notifier).state.docId!,
           barberName: ref.read(selectedBarber.notifier).state.name,
@@ -180,11 +177,10 @@ class BookingViewModelImp implements BookingViewModel {
           .collection('User')
           .doc(FirebaseAuth.instance.currentUser!.phoneNumber!)
           .collection(
-          'Booking_${FirebaseAuth.instance.currentUser!.uid}') //For secure info
+          'Booking_${FirebaseAuth.instance.currentUser!.uid}')
           .doc(
           '${ref.read(selectedBarber.notifier).state.docId}_${DateFormat('dd_MM_yyyy').format(ref.read(selectedDate.notifier).state)}');
 
-      //Set for batch
       batch.set(barberBooking, bookingModel.toJson());
       batch.set(userBooking, bookingModel.toJson());
       ref.read(isLoading.notifier).state = true;
@@ -200,7 +196,7 @@ class BookingViewModelImp implements BookingViewModel {
               .showSnackBar(const SnackBar(
             content: Text('Запись оформлена'),
           ));
-          //Create Event
+          // Создаём запись в календарь
           final Event event = Event(
               title: titleText,
               description:
@@ -223,7 +219,6 @@ class BookingViewModelImp implements BookingViewModel {
               androidParams: const AndroidParams(emailInvites: []));
           Add2Calendar.addEvent2Cal(event).then((value) {});
         });
-        //Reset value
         ref.read(selectedDate.notifier).state = DateTime.now();
         ref.read(selectedBarber.notifier).state = BarberModel();
         ref.read(selectedCity.notifier).state = CityModel(name: '');

@@ -39,18 +39,18 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: any
-  google_fonts: 4.0.4
-  firebase_auth: ^4.17.4
+  google_fonts: 6.2.1
+  firebase_auth: ^5.1.1
   firebase_auth_platform_interface: ^7.1.4
-  flutter_auth_ui: ^3.1.0
+  firebase_ui_auth: ^1.15.0
+  firebase_ui_localizations: ^1.12.0
   firebase_core: any
   flutter_datetime_picker_plus: any
   page_transition: any
   rflutter_alert: any
-  cloud_firestore: ^4.15.4
+  cloud_firestore: ^5.0.2
   cloud_firestore_platform_interface: ^6.1.5
   carousel_slider: any
-  im_stepper: any
   flutter_rating_bar: any
   intl: ^0.19.0
   ntp: any
@@ -59,10 +59,13 @@ dependencies:
   mailer: any
   flutter_riverpod: ^2.5.1
   shared_preferences: ^2.2.3
-  firebase_messaging: ^14.9.1
+  firebase_messaging: ^15.0.2
   flutter_local_notifications: ^17.1.2
   dio: any
   googleapis_auth: ^1.4.1
+  yandex_mapkit: 4.1.0
+  yandex_geocoder: 2.3.1
+  http: 1.2.1
 
 
 dev_dependencies:
@@ -74,7 +77,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

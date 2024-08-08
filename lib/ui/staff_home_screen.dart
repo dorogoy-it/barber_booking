@@ -63,7 +63,6 @@ class StaffHome extends ConsumerWidget {
               flex: 10,
             ),
 
-            //Button
             Expanded(
                 child: Align(
               alignment: Alignment.bottomCenter,

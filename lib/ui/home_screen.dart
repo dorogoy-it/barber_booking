@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,7 +9,6 @@ import 'package:untitled2/model/image_model.dart';
 import 'package:untitled2/state/state_management.dart';
 import 'package:untitled2/view_model/home/home_view_model_imp.dart';
 import '../cloud_firestore/user_ref.dart';
-import '../main.dart';
 import '../model/user_model.dart';
 
 class HomePage extends ConsumerWidget {
@@ -37,7 +37,7 @@ class HomePage extends ConsumerWidget {
                     backgroundColor: const Color(0xFFDFDFDF),
                     body: SingleChildScrollView(
                       child: Column(children: [
-                        //user profile
+                        // профиль пользователя
                         FutureBuilder(
                             future: homeViewModel.displayUserProfile(ref, context,
                                 FirebaseAuth.instance.currentUser!
@@ -130,7 +130,7 @@ class HomePage extends ConsumerWidget {
                                 );
                               }
                             }),
-                        //Menu
+                        //Меню
                         Padding(
                           padding: const EdgeInsets.all(4),
                           child: _buildButtons(
@@ -138,7 +138,7 @@ class HomePage extends ConsumerWidget {
                               .read(userInformation.notifier)
                               .state),
                         ),
-                        //Banner
+                        //Баннеры
                         FutureBuilder(
                             future: homeViewModel.displayBanner(),
                             builder: (context, snapshot) {
@@ -167,7 +167,7 @@ class HomePage extends ConsumerWidget {
                                         .toList());
                               }
                             }),
-                        //Lookbook
+                        //Лукбуки (примеры работ)
                         Padding(
                           padding: const EdgeInsets.all(8),
                           child: Row(
@@ -223,7 +223,7 @@ class HomePage extends ConsumerWidget {
   }
 
   Future<void> signOut(BuildContext context) async {
-    // Получите текущего пользователя перед выходом
+    // Получаем текущего пользователя перед выходом
     User? currentUser = FirebaseAuth.instance.currentUser;
 
     // Отписка от топика, если пользователь был авторизован
@@ -234,15 +234,13 @@ class HomePage extends ConsumerWidget {
     }
 
     // Выход из системы
-    await FirebaseAuth.instance.signOut().then((value) =>
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => MyHomePage())));
+    FirebaseUIAuth.signOut(context: context);
+    Navigator.pushReplacementNamed(context, '/');
   }
 
   Widget _buildButtons(BuildContext context, UserModel userModel) {
     if (!userModel.isStaff && !userModel.isAdmin) {
-      // Если не сотрудник и не администратор, показать обе кнопки
+      // Если пользователь не сотрудник и не администратор, показать обе кнопки
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

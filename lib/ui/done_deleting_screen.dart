@@ -17,7 +17,7 @@ class DoneDeleting extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    //When refresh, clear servicesSelected, because ChipChoices don't hold state
+    // При обновлении, надо очищать selectedServices, потому что ChipChoices не сохраняют состояние
     ref.read(selectedServices.notifier).state.clear();
     return SafeArea(
       child: Scaffold(
@@ -238,7 +238,7 @@ class DoneDeleting extends ConsumerWidget {
                 },
               ),
             ),
-            const SizedBox(height: 20), // Add some spacing
+            const SizedBox(height: 20), // Добавим немного пространства
             Container(
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.all(8),

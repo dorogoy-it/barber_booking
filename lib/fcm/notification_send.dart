@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:untitled2/cloud_firestore/app_data_ref.dart';
 
 import '../model/notification_payload_model.dart';
@@ -11,7 +12,9 @@ Future<bool> sendNotification(
 
   AccessTokenFirebase accessTokenGetter = AccessTokenFirebase();
   String newToken = await accessTokenGetter.getAccessToken();
-  print("Современный $newToken");
+  if (kDebugMode) {
+    print("Современный $newToken");
+  }
 
   var result = await Dio().post('https://fcm.googleapis.com/v1/projects/lastchance-ec817/messages:send',
       options: Options(

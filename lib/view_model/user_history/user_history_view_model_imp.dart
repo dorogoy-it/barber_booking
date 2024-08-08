@@ -29,12 +29,12 @@ class UserHistoryViewModelImp implements UserHistoryViewModel {
         .doc(bookingModel.slot.toString());
     var userBooking = bookingModel.reference;
 
-    //Delete
+    // Удаление
     batch.delete(userBooking!);
     batch.delete(barberBooking);
 
     batch.commit().then((value) {
-      //Refresh data
+      // Обновление данных
       ref.read(deleteFlagRefresh.notifier).state =
       !ref.read(deleteFlagRefresh.notifier).state;
     });

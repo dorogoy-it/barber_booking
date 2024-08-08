@@ -193,7 +193,7 @@ class AdminHome extends ConsumerWidget {
   }
 
   displayAppointment(WidgetRef ref, BuildContext context) {
-    //First, we need check is this user a admin of this salon
+    // Проверяем, является ли пользователь сотрудником выбранного салона
     return FutureBuilder(
         future: checkAdminOfThisSalon(ref, context),
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {

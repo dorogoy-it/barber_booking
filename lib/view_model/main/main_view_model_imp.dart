@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_ui/flutter_auth_ui.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:untitled2/view_model/main/main_view_model.dart';
+import '../../decorations.dart';
 import '../../model/user_model.dart';
 import '../../state/state_management.dart';
 import '../../ui/components/user_widgets/register_dialog.dart';
@@ -18,43 +20,76 @@ class MainViewModelImp implements MainViewModel {
 
     if (user == null) {
       try {
-        await FlutterAuthUi.startUi(
-            items: [AuthUiProvider.phone],
-            tosAndPrivacyPolicy: const TosAndPrivacyPolicy(
-                tosUrl: 'https://google.com',
-                privacyPolicyUrl: 'https://google.com'),
-            androidOption: const AndroidOption(
-                enableSmartLock: false, showLogo: true, overrideTheme: true));
+        // Открываем экран ввода номера телефона
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                PhoneInputScreen(
+                  actions: [
+                    SMSCodeRequestedAction((context, action, flowKey, phone) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SMSCodeInputScreen(
+                                actions: [
+                                  AuthStateChangeAction<SignedIn>((context,
+                                      state) async {
+                                    // После успешной аутентификации
+                                    user = FirebaseAuth.instance.currentUser;
+                                    if (user != null) {
+                                      // Обновляем состояние
+                                      ref
+                                          .read(userLogged.notifier)
+                                          .state = user;
 
-        // refresh state
-        ref.read(userLogged.notifier).state = FirebaseAuth.instance.currentUser;
+                                      // Проверяем, существует ли пользователь в коллекции 'User'
+                                      CollectionReference userRef = FirebaseFirestore
+                                          .instance.collection('User');
+                                      DocumentSnapshot snapshotUser = await userRef
+                                          .doc(user?.phoneNumber).get();
 
-        // check if the user exists in the 'User' collection
-        CollectionReference userRef = FirebaseFirestore.instance.collection('User');
-        DocumentSnapshot snapshotUser = await userRef.doc(FirebaseAuth.instance.currentUser!.phoneNumber).get();
+                                      if (snapshotUser.exists) {
+                                        // Пользователь существует, переходим на домашнюю страницу
+                                        UserModel userModel = UserModel
+                                            .fromJson(
+                                            snapshotUser.data() as Map<
+                                                String,
+                                                dynamic>);
+                                        ref
+                                            .read(userInformation.notifier)
+                                            .state = userModel;
 
-        if (snapshotUser.exists) {
-          // user exists, navigate to home
-          UserModel userModel = UserModel.fromJson(snapshotUser.data() as Map<String, dynamic>);
+                                        Navigator.of(context)
+                                            .pushAndRemoveUntil(
+                                          MaterialPageRoute(
+                                              builder: (context) => HomePage()),
+                                              (Route<dynamic> route) => false,
+                                        );
 
-          // Сохраните userModel в провайдере userInformation
-          ref.read(userInformation.notifier).state = userModel;
-
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => HomePage()),
-                (Route<dynamic> route) => false,
-          );
-
-          if (FirebaseAuth.instance.currentUser != null) {
-            FirebaseMessaging.instance.subscribeToTopic(FirebaseAuth.instance.currentUser!.uid)
-                .then((value) => print('Успех'));
-          } else {
-            print('Пользователь не авторизован');
-          }
-        } else {
-          // user does not exist, show Alert Dialog for user input
-          showRegisterDialog(context, userRef, scaffoldState);
-        }
+                                        FirebaseMessaging.instance
+                                            .subscribeToTopic(user!.uid)
+                                            .then((value) => print('Успех'));
+                                      } else {
+                                        // Пользователь не существует, показываем диалог регистрации
+                                        showRegisterDialog(
+                                            context, userRef, scaffoldState);
+                                      }
+                                    }
+                                  })
+                                ],
+                                flowKey: flowKey,
+                                action: action,
+                              ),
+                        ),
+                      );
+                    }),
+                  ],
+                  headerBuilder: headerIcon(Icons.phone),
+                  sideBuilder: sideIcon(Icons.phone),
+                ),
+          ),
+        );
       } catch (e) {
         ScaffoldMessenger.of(scaffoldState.currentContext!)
             .showSnackBar(SnackBar(content: Text('$e')));

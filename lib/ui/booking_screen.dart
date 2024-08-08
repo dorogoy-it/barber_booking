@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:im_stepper/stepper.dart';
 import 'package:untitled2/state/state_management.dart';
 import 'package:untitled2/view_model/booking/booking_view_model_imp.dart';
 import 'package:untitled2/widgets/my_loading_widget.dart';
@@ -46,18 +45,7 @@ class BookingScreen extends ConsumerWidget {
       backgroundColor: const Color(0xFFFDF9EE),
       body: Column(
         children: [
-          //Step
-          NumberStepper(
-            activeStep: step - 1,
-            direction: Axis.horizontal,
-            enableNextPreviousButtons: false,
-            enableStepTapping: false,
-            numbers: const [1, 2, 3, 4, 5, 6],
-            stepColor: Colors.black,
-            activeStepColor: Colors.grey,
-            numberStyle: const TextStyle(color: Colors.white),
-          ),
-          //Screen
+          // Экран
           Expanded(
             flex: 10,
             child: step == 1
@@ -79,7 +67,7 @@ class BookingScreen extends ConsumerWidget {
                                             context, scaffoldKey)
                                     : Container(),
           ),
-          //Button
+          // Кнопки
           Expanded(
               child: Align(
             alignment: Alignment.bottomCenter,

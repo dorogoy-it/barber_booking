@@ -15,7 +15,7 @@ Future<UserModel> getUserProfiles(WidgetRef ref, BuildContext context, String ph
     var userModel = UserModel.fromJson(data);
     ref.read(userInformation.notifier).state = userModel;
 
-    // Сохраните роль пользователя в SharedPreferences
+    // Сохраняем роль пользователя в SharedPreferences
     await saveUserRole(userModel);
 
     return userModel;

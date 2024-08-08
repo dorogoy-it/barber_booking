@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide PhoneAuthProvider;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:firebase_ui_localizations/firebase_ui_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -28,22 +30,27 @@ import 'package:untitled2/ui/staff_home_screen.dart';
 import 'package:untitled2/ui/user_history_screen.dart';
 import 'package:untitled2/utils/utils.dart';
 import 'package:untitled2/view_model/main/main_view_model_imp.dart';
+import 'decorations.dart';
 import 'firebase_options.dart';
 
 FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 AndroidNotificationChannel? channel;
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //Firebase
+  // Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseUIAuth.configureProviders([
+    PhoneAuthProvider(),
+  ]);
 
-  //Setup Firebase
+  // Подключаем Firebase
   FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
 
-  //Flutter Local Notifications
+  // Flutter Local Notifications
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   channel = const AndroidNotificationChannel(
       'com.example.untitled2', 'Barber Booking App',
@@ -51,23 +58,79 @@ Future<void> main() async {
 
   await flutterLocalNotificationsPlugin!
       .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+      AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel!);
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(ProviderScope(child: MyApp()));
 
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true, badge: true, sound: true);
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+  String get initialRoute => '/';
+  final mfaAction = AuthStateChangeAction<MFARequired>(
+        (context, state) async {
+      final nav = Navigator.of(context);
 
-  // This widget is the root of your application.
+      await startMFAVerification(
+        resolver: state.resolver,
+        context: context,
+      );
+
+      nav.pushReplacementNamed('/profile');
+    },
+  );
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      initialRoute: initialRoute,
+      routes: {
+        '/': (context) => MyHomePage(),
+        '/phone': (context) {
+          return PhoneInputScreen(
+            actions: [
+              SMSCodeRequestedAction((context, action, flowKey, phone) {
+                Navigator.of(context).pushReplacementNamed(
+                  '/sms',
+                  arguments: {
+                    'action': action,
+                    'flowKey': flowKey,
+                    'phone': phone,
+                  },
+                );
+              }),
+            ],
+            headerBuilder: headerIcon(Icons.phone),
+            sideBuilder: sideIcon(Icons.phone),
+          );
+        },
+        '/sms': (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments
+          as Map<String, dynamic>?;
+
+          return SMSCodeInputScreen(
+            actions: [
+              AuthStateChangeAction<SignedIn>((context, state) {
+                Navigator.of(context).pushReplacementNamed('/profile');
+              })
+            ],
+            flowKey: arguments?['flowKey'],
+            action: arguments?['action'],
+            headerBuilder: headerIcon(Icons.sms_outlined),
+            sideBuilder: sideIcon(Icons.sms_outlined),
+          );
+        },
+      },
       title: 'Barber Booking App',
-      localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
+      supportedLocales: const [Locale('ru')],
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        FirebaseUILocalizations.delegate,],
+      locale: const Locale('ru', 'RU'),
       restorationScopeId: "Test",
       onGenerateRoute: (settings) {
         switch (settings.name) {
@@ -154,7 +217,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
     );
   }
 }
@@ -176,15 +238,13 @@ class MyHomePageState extends State<MyHomePage>{
   void initState() {
     super.initState();
 
-    //Get token, subscribe... etc here
-
-    //Get token
+    // Получаем токен, подписку и прочее тут
 
     FirebaseMessaging.instance.getToken().then((value) => print('Token $value'));
 
-    //Setup message display
+    // Выводим уведомление на экран
     initFirebaseMessagingHandler(channel!);
-    
+
   }
 
   @override
@@ -234,7 +294,7 @@ class MyHomePageState extends State<MyHomePage>{
                               ),
                               style: ButtonStyle(
                                 backgroundColor:
-                                MaterialStateProperty.all(Colors.black),
+                                WidgetStateProperty.all(Colors.black),
                               ),
                             );
                           }
@@ -267,7 +327,6 @@ class MyHomePageState extends State<MyHomePage>{
         FirebaseFirestore.instance.collection('User');
         DocumentSnapshot snapshotUser =
         await userRef.doc(user.phoneNumber).get();
-        // Force reload state
         ref.read(forceReload.notifier).state = true;
         return snapshotUser.exists ? LOGIN_STATE.LOGGED : LOGIN_STATE.NOT_LOGIN;
       } else {

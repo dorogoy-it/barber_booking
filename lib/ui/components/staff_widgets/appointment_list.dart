@@ -10,7 +10,7 @@ import '../../../string/strings.dart';
 import '../../../utils/utils.dart';
 
 displayAppointment(WidgetRef ref, StaffHomeViewModel staffHomeViewModel, BuildContext context) {
-  //First, we need check is this user a staff of this salon
+  // Проверяем, является ли пользователь сотрудником выбранного салона
   return FutureBuilder(
       future: staffHomeViewModel.isStaffOfThisSalon(ref, context),
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
@@ -67,10 +67,10 @@ displaySlot(WidgetRef ref, StaffHomeViewModel staffHomeViewModel, BuildContext c
                 DatePicker.showDatePicker(context,
                     locale: LocaleType.ru,
                     showTitleActions: true,
-                    minTime: DateTime.now(), // Fix can't select current date
+                    minTime: DateTime.now(), // исправление невозможности выбора текущей даты
                     maxTime: now.add(const Duration(days: 31)),
                     onConfirm: (date) => ref.read(selectedDate.notifier).state =
-                        date); //next time you can choose is 31 days next
+                        date); // в следующем месяце можно выбрать любой из 31 дня
               },
               child: const Padding(
                 padding: EdgeInsets.all(8),

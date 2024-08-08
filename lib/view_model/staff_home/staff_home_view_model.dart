@@ -4,17 +4,17 @@ import '../../model/city_model.dart';
 import '../../model/salon_model.dart';
 
 abstract class StaffHomeViewModel {
-  //City
+  // Город
   Future<List<CityModel>> displayCities();
   void onSelectedCity(WidgetRef ref, BuildContext context, CityModel cityModel);
   bool isCitySelected(WidgetRef ref, BuildContext context, CityModel cityModel);
 
-  //Salon
+  // Салон
   Future<List<SalonModel>> displaySalonByCity(WidgetRef ref, String cityName);
   void onSelectedSalon(WidgetRef ref, BuildContext context, SalonModel salonModel);
   bool isSalonSelected(WidgetRef ref, BuildContext context, SalonModel salonModel);
 
-  //Appointment
+  // Запись
   Future<bool> isStaffOfThisSalon(WidgetRef ref, BuildContext context);
   Future<int> displayMaxAvailableTimeSlot(DateTime dt);
   Future<List<int>> displayBookingSlotOfBarber(WidgetRef ref, BuildContext context, String date);

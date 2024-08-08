@@ -21,8 +21,8 @@ void initFirebaseMessagingHandler(AndroidNotificationChannel channel) {
   });
 
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage remoteMessage) {
-    //here you can add navigation code to push with message
-    //Navigation...Куда-нибудь
+    // здесь можно задать, куда будет направлять пользователя приложение, при нажатии на уведомление
+    // Navigation...Куда-нибудь
 
   });
 }

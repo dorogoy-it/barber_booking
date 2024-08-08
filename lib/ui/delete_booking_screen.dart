@@ -43,8 +43,8 @@ class DeleteBooking extends ConsumerWidget {
           backgroundColor: const Color(0xFFFDF9EE),
           body: Column(
             children: [
-              //Step
-              //Button
+              // Шаги
+              // Кнопки
               Expanded(
                 child: Align(
                   alignment: Alignment.bottomCenter,
@@ -79,7 +79,7 @@ class DeleteBooking extends ConsumerWidget {
                   ),
                 ),
               ),
-              //Screen
+              // Экран
               Expanded(
                 flex: 10,
                 child: step == 1
@@ -88,7 +88,7 @@ class DeleteBooking extends ConsumerWidget {
                     ? displayTimeSlot(ref, context)
                     : Container(),
               ),
-              //Button
+              // Кнопки
               Expanded(
                   child: Align(
                     alignment: Alignment.bottomCenter,
@@ -235,10 +235,10 @@ class DeleteBooking extends ConsumerWidget {
                   DatePicker.showDatePicker(context,
                       locale: LocaleType.ru,
                       showTitleActions: true,
-                      minTime: DateTime(2022), // Fix can't select current date
+                      minTime: DateTime(2022),
                       maxTime: DateTime(DateTime.now().year, 12, 31),
                       onConfirm: (date) =>
-                      ref.read(selectedDate.notifier).state = date); //next time you can choose is 31 days next
+                      ref.read(selectedDate.notifier).state = date);
                 },
                 child: const Padding(
                   padding: EdgeInsets.all(8),

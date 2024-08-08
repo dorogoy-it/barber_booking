@@ -13,7 +13,7 @@ final forceReload = StateProvider<bool>((ref) => false);
 
 final userInformation = StateProvider<UserModel>((ref) => UserModel(name: '', address: '', phone: '', id: ''));
 
-//Booking state
+// Состояние записи
 final currentStep = StateProvider<int>((ref) => 1);
 final selectedCity = StateProvider<CityModel>((ref) => CityModel(name: ''));
 final selectedSalon = StateProvider<SalonModel>((ref) => SalonModel(address: '', name: ''));
@@ -24,10 +24,10 @@ final selectedTime = StateProvider<String>((ref) => '');
 
 final selectedUser = StateProvider<UserModel>((ref) => UserModel(name: '', address: '', phone: '', id: ''));
 
-//Delete Booking
+// Удаление записи
 final deleteFlagRefresh = StateProvider<bool>((ref) => false);
 
-//Staff
+// Сотрудник
 final staffStep = StateProvider<int>((ref) => 1);
 final selectedBooking = StateProvider<BookingModel>((ref) => BookingModel(
     barberId: '',
@@ -48,5 +48,5 @@ final selectedBooking = StateProvider<BookingModel>((ref) => BookingModel(
 final selectedServices =
     StateProvider<List<ServiceModel>>((ref) => List<ServiceModel>.empty(growable: true));
 
-//Loading
+// Загрузка
 final isLoading = StateProvider((ref) => false);

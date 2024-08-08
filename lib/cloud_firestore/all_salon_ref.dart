@@ -192,7 +192,7 @@ Future<bool> checkStaffOfThisSalon(WidgetRef ref, BuildContext context) async {
       .collection('Branch')
       .doc(ref.read(selectedSalon.notifier).state.docId)
       .collection('Barber')
-      .doc(FirebaseAuth.instance.currentUser!.uid) //Compare uid of this staff
+      .doc(FirebaseAuth.instance.currentUser!.uid) // сравниваем уникальный идентификатор сотрудника
       .get();
   return barberSnapshot.exists;
 }
@@ -204,7 +204,7 @@ Future<bool> checkAdminOfThisSalon(WidgetRef ref, BuildContext context) async {
       .collection('Branch')
       .doc(ref.read(selectedSalon.notifier).state.docId)
       .collection('Admin')
-      .doc(FirebaseAuth.instance.currentUser!.uid) //Compare uid of this staff
+      .doc(FirebaseAuth.instance.currentUser!.uid) // сравниваем уникальный идентификатор сотрудника
       .get();
   return adminSnapshot.exists;
 }
@@ -217,7 +217,7 @@ Future<List<int>> getBookingSlotOfBarber(
       .collection('Branch')
       .doc(ref.read(selectedSalon.notifier).state.docId)
       .collection('Barber')
-      .doc(FirebaseAuth.instance.currentUser!.uid); //Compare uid of this staff
+      .doc(FirebaseAuth.instance.currentUser!.uid); // сравниваем уникальный идентификатор сотрудника
   List<int> result = List<int>.empty(growable: true);
   var bookingRef = barberDocument.collection(date);
   QuerySnapshot snapshot = await bookingRef.get();
@@ -235,7 +235,7 @@ Future<List<int>> getBookingSlotOfBarberToAdmin(
       .collection('Branch')
       .doc(ref.read(selectedSalon.notifier).state.docId)
       .collection('Barber')
-      .doc(ref.read(selectedBarber.notifier).state.docId); //Compare uid of this staff
+      .doc(ref.read(selectedBarber.notifier).state.docId); // сравниваем уникальный идентификатор сотрудника
   List<int> result = List<int>.empty(growable: true);
   var bookingRef = barberDocument.collection(date);
   QuerySnapshot snapshot = await bookingRef.get();

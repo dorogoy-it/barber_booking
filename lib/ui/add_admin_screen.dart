@@ -138,7 +138,7 @@ class AddAdminScreenState extends ConsumerState<AddAdminScreen> {
       String? selectedSalonDocId = ref.read(selectedSalon.notifier).state.docId;
       String uniqueId = FirebaseAuth.instance.currentUser!.uid;
 
-      // Add employee to Users collection
+      // Добавляем админа в коллекцию User
       await FirebaseFirestore.instance.collection('User').doc(phoneNumber).set({
         'name': _adminNameController.text,
         'address': _adminAddressController.text,
@@ -147,7 +147,7 @@ class AddAdminScreenState extends ConsumerState<AddAdminScreen> {
         'isAdmin': true,
       });
 
-      // Add employee to Barber collection
+      // Добавляем админа в коллекцию Barber
       await FirebaseFirestore.instance
           .collection('AllSalon')
           .doc(selectedCityName)
@@ -157,6 +157,7 @@ class AddAdminScreenState extends ConsumerState<AddAdminScreen> {
           .doc(uniqueId)
           .set({
         'name': _adminNameController.text,
+        'id': uniqueId,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(

@@ -6,29 +6,29 @@ import '../../model/city_model.dart';
 import '../../model/service_model.dart';
 
 abstract class BookingViewModel {
-  //City
+  // Город
   Future<List<CityModel>> displayCities();
   void onSelectedCity(WidgetRef ref, BuildContext context, CityModel cityModel);
   bool isCitySelected(WidgetRef ref, BuildContext context, CityModel cityModel);
 
-  //Salon
+  // Салон
   Future<List<SalonModel>> displaySalonByCity(WidgetRef ref, String cityName);
   void onSelectedSalon(WidgetRef ref, BuildContext context, SalonModel salonModel);
   bool isSalonSelected(WidgetRef ref, BuildContext context, SalonModel salonModel);
 
-  //Barber
+  // Парикмахер
   Future<List<BarberModel>> displayBarbersBySalon(WidgetRef ref, SalonModel salonModel);
   void onSelectedBarber(WidgetRef ref, BuildContext context, BarberModel barberModel);
   bool isBarberSelected(WidgetRef ref, BuildContext context, BarberModel barberModel);
 
-  //Services
+  // Услуги
   double calculateTotalPrice(List<ServiceModel> serviceSelected);
   Future<List<ServiceModel>> displayServices(WidgetRef ref, BuildContext context);
   bool isSelectedService(WidgetRef ref, BuildContext context, ServiceModel serviceModel);
   void onSelectedChip(WidgetRef ref, BuildContext context, bool isSelected, ServiceModel e);
   List<ServiceModel> changeSalon(WidgetRef ref, BuildContext context);
 
-  //Timeslot
+  // Временные слоты
   Future<int> displayMaxAvailableTimeslot(DateTime dt);
   Future<List<int>> displayTimeSlotOfBarber(BarberModel barberModel, String date);
   bool isAvailableForTapTimeSlot(int maxTime, int index, List<int> listTimeSlot);

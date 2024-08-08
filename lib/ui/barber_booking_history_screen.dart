@@ -68,7 +68,7 @@ class BarberHistoryScreen extends ConsumerWidget {
                         onConfirm: (date) => ref
                                 .read(barberHistorySelectedDate.notifier)
                                 .state =
-                            date); //next time you can choose is 31 days next
+                            date);
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(8),

@@ -16,7 +16,7 @@ class DoneService extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    //When refresh, clear servicesSelected, because ChipChoices don't hold state
+    // При обновлении, надо очищать selectedServices, потому что ChipChoices не сохраняют состояние
     ref.read(selectedServices.notifier).state.clear();
     return SafeArea(
       child: Scaffold(

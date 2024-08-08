@@ -29,14 +29,14 @@ const TIME_SLOT = {
 
 Future<int> getMaxAvailableTimeSlot(DateTime dt) async {
   DateTime now = dt.toLocal();
-  int offset = await NTP.getNtpOffset(localTime: now); //Sync time with server
+  int offset = await NTP.getNtpOffset(localTime: now); // Синхронизируем время с сервером
   DateTime syncTime = now.add(Duration(milliseconds: offset));
-  //Compare syncTime with local time to enable time slot
+  // Сравниваем syncTime с местным временем, чтобы включить временной слот
   if (syncTime.isBefore(DateTime(now.year, now.month, now.day, 9, 0))) {
-    return 0; //return next slot available
+    return 0; // возвращаем следующий доступный слот
   } else if (syncTime.isAfter(DateTime(now.year, now.month, now.day, 9, 0)) &&
       syncTime.isBefore(DateTime(now.year, now.month, now.day, 9, 30))) {
-    return 1; //return next slot available
+    return 1;
   }
   else if (syncTime.isAfter(DateTime(now.year, now.month, now.day, 9, 30)) &&
       syncTime.isBefore(DateTime(now.year, now.month, now.day, 10, 0))) {

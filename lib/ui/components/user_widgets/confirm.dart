@@ -150,7 +150,7 @@ displayConfirm(WidgetRef ref, BookingViewModel bookingViewModel, BuildContext co
                     onPressed: () => bookingViewModel.confirmBooking(ref, context, scaffoldKey),
                     style: ButtonStyle(
                         backgroundColor:
-                        MaterialStateProperty.all(Colors.black26)),
+                        WidgetStateProperty.all(Colors.black26)),
                     child: const Text('Подтвердить',
                         style: TextStyle(color: Colors.white)),
                   )
