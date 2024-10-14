@@ -94,7 +94,7 @@ displayTimeSlot(
                       var listTimeSlot = snapshot.data as List<int>;
                       return GridView.builder(
                           key: const PageStorageKey('keep'),
-                          itemCount: TIME_SLOT.length,
+                          itemCount: timeSlot.length,
                           gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3),
@@ -111,7 +111,7 @@ displayTimeSlot(
                                 header: ref
                                     .read(selectedTime.notifier)
                                     .state ==
-                                    TIME_SLOT.elementAt(index)
+                                    timeSlot.elementAt(index)
                                     ? const Icon(Icons.check)
                                     : null,
                                 child: Center(
@@ -121,7 +121,7 @@ displayTimeSlot(
                                     mainAxisAlignment:
                                     MainAxisAlignment.center,
                                     children: [
-                                      Text(TIME_SLOT.elementAt(index)),
+                                      Text(timeSlot.elementAt(index)),
                                       Text(listTimeSlot.contains(index)
                                           ? 'Занято'
                                           : maxTimeSlot > index

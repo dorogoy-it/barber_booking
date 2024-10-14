@@ -34,7 +34,7 @@ class ServiceScreenState extends ConsumerState<EditServiceScreen> {
   Future<List<ServiceModel>> _getServices(WidgetRef ref) async {
     var services = <ServiceModel>[];
     CollectionReference serviceRef =
-    FirebaseFirestore.instance.collection('Services');
+        FirebaseFirestore.instance.collection('Services');
     QuerySnapshot snapshot = await serviceRef
         .where(ref.read(selectedSalon.notifier).state.docId!, isEqualTo: true)
         .get();
@@ -55,11 +55,13 @@ class ServiceScreenState extends ConsumerState<EditServiceScreen> {
       'name': name,
       'price': price,
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Услуга успешно добавлена'),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Услуга успешно добавлена'),
+        ),
+      );
+    }
     setState(() {
       _servicesFuture = _getServices(ref);
       _nameController.clear();
@@ -77,11 +79,13 @@ class ServiceScreenState extends ConsumerState<EditServiceScreen> {
       'name': name,
       'price': price,
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Услуга успешно отредактирована'),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Услуга успешно отредактирована'),
+        ),
+      );
+    }
     setState(() {
       _servicesFuture = _getServices(ref);
       _nameController.clear();
@@ -94,11 +98,13 @@ class ServiceScreenState extends ConsumerState<EditServiceScreen> {
         .collection('Services')
         .doc(service.docId)
         .delete();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Услуга успешно удалена'),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Услуга успешно удалена'),
+        ),
+      );
+    }
     setState(() {
       _servicesFuture = _getServices(ref);
     });
@@ -137,90 +143,91 @@ class ServiceScreenState extends ConsumerState<EditServiceScreen> {
                 var service = snapshot.data![index];
                 return Card(
                     child: ListTile(
-                      title: Text(service.name),
-                      subtitle: Text('${service.price} руб.'),
-                      leading: const Icon(Icons.content_cut),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Редактировать услугу'),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        TextField(
-                                          controller: _nameController
-                                            ..text = service.name,
-                                          decoration: const InputDecoration(
-                                              labelText: 'Название'),
-                                        ),
-                                        TextField(
-                                          controller: _priceController
-                                            ..text = service.price.toString(),
-                                          decoration: const InputDecoration(
-                                              labelText: 'Цена'),
-                                          keyboardType: TextInputType.number,
-                                        ),
-                                      ],
+                  title: Text(service.name),
+                  subtitle: Text('${service.price} руб.'),
+                  leading: const Icon(Icons.content_cut),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('Редактировать услугу'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TextField(
+                                      controller: _nameController
+                                        ..text = service.name,
+                                      decoration: const InputDecoration(
+                                          labelText: 'Название'),
                                     ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Отмена'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          _editService(ref, service);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Сохранить'),
-                                      ),
-                                    ],
-                                  );
-                                },
+                                    TextField(
+                                      controller: _priceController
+                                        ..text = service.price.toString(),
+                                      decoration: const InputDecoration(
+                                          labelText: 'Цена'),
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Отмена'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      _editService(ref, service);
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Сохранить'),
+                                  ),
+                                ],
                               );
                             },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Удалить услугу?'),
-                                    content: Text('Вы уверены, что хотите удалить услугу "${service.name}"?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Отмена'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          _deleteService(ref, service);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Удалить'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    ));
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('Удалить услугу?'),
+                                content: Text(
+                                    'Вы уверены, что хотите удалить услугу "${service.name}"?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Отмена'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      _deleteService(ref, service);
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Удалить'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ));
               },
             );
           }

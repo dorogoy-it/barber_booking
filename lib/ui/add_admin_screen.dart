@@ -22,7 +22,8 @@ class AddAdminScreenState extends ConsumerState<AddAdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Добавить администратора',
+        title: const Text(
+          'Добавить администратора',
           style: TextStyle(
             color: Colors.white, // Здесь указывается цвет текста
           ),
@@ -95,7 +96,8 @@ class AddAdminScreenState extends ConsumerState<AddAdminScreen> {
   void _verificationFailed(FirebaseAuthException exception) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(exception.message ?? 'Не получилось зарегистрировать сотрудника'),
+        content: Text(
+            exception.message ?? 'Не получилось зарегистрировать сотрудника'),
       ),
     );
   }
@@ -119,7 +121,9 @@ class AddAdminScreenState extends ConsumerState<AddAdminScreen> {
                   smsCode: otpController.text,
                 );
                 await _registerAdmin(ref, credential);
-                Navigator.of(context).pop();
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
               },
               child: const Text('Подтвердить'),
             ),
@@ -129,12 +133,12 @@ class AddAdminScreenState extends ConsumerState<AddAdminScreen> {
     );
   }
 
-  Future<void> _registerAdmin(WidgetRef ref, PhoneAuthCredential credential) async {
+  Future<void> _registerAdmin(
+      WidgetRef ref, PhoneAuthCredential credential) async {
     try {
       await FirebaseAuth.instance.signInWithCredential(credential);
       String? phoneNumber = FirebaseAuth.instance.currentUser!.phoneNumber;
-      String selectedCityName =
-          ref.read(selectedCity.notifier).state.name;
+      String selectedCityName = ref.read(selectedCity.notifier).state.name;
       String? selectedSalonDocId = ref.read(selectedSalon.notifier).state.docId;
       String uniqueId = FirebaseAuth.instance.currentUser!.uid;
 
@@ -160,17 +164,21 @@ class AddAdminScreenState extends ConsumerState<AddAdminScreen> {
         'id': uniqueId,
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Администратор успешно добавлен!'),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Администратор успешно добавлен!'),
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Ошибка регистрации: $e'),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка регистрации: $e'),
+          ),
+        );
+      }
     }
   }
 }

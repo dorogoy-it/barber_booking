@@ -24,70 +24,66 @@ class MainViewModelImp implements MainViewModel {
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                PhoneInputScreen(
-                  actions: [
-                    SMSCodeRequestedAction((context, action, flowKey, phone) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              SMSCodeInputScreen(
-                                actions: [
-                                  AuthStateChangeAction<SignedIn>((context,
-                                      state) async {
-                                    // После успешной аутентификации
-                                    user = FirebaseAuth.instance.currentUser;
-                                    if (user != null) {
-                                      // Обновляем состояние
-                                      ref
-                                          .read(userLogged.notifier)
-                                          .state = user;
+            builder: (context) => PhoneInputScreen(
+              actions: [
+                SMSCodeRequestedAction((context, action, flowKey, phone) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => SMSCodeInputScreen(
+                        actions: [
+                          AuthStateChangeAction<SignedIn>(
+                              (context, state) async {
+                            // После успешной аутентификации
+                            user = FirebaseAuth.instance.currentUser;
+                            if (user != null) {
+                              // Обновляем состояние
+                              ref.read(userLogged.notifier).state = user;
 
-                                      // Проверяем, существует ли пользователь в коллекции 'User'
-                                      CollectionReference userRef = FirebaseFirestore
-                                          .instance.collection('User');
-                                      DocumentSnapshot snapshotUser = await userRef
-                                          .doc(user?.phoneNumber).get();
+                              // Проверяем, существует ли пользователь в коллекции 'User'
+                              CollectionReference userRef =
+                                  FirebaseFirestore.instance.collection('User');
+                              DocumentSnapshot snapshotUser =
+                                  await userRef.doc(user?.phoneNumber).get();
 
-                                      if (snapshotUser.exists) {
-                                        // Пользователь существует, переходим на домашнюю страницу
-                                        UserModel userModel = UserModel
-                                            .fromJson(
-                                            snapshotUser.data() as Map<
-                                                String,
-                                                dynamic>);
-                                        ref
-                                            .read(userInformation.notifier)
-                                            .state = userModel;
+                              if (snapshotUser.exists) {
+                                // Пользователь существует, переходим на домашнюю страницу
+                                UserModel userModel = UserModel.fromJson(
+                                    snapshotUser.data()
+                                        as Map<String, dynamic>);
+                                ref.read(userInformation.notifier).state =
+                                    userModel;
 
-                                        Navigator.of(context)
-                                            .pushAndRemoveUntil(
-                                          MaterialPageRoute(
-                                              builder: (context) => HomePage()),
-                                              (Route<dynamic> route) => false,
-                                        );
+                                if (context.mounted) {
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                        builder: (context) => HomePage()),
+                                    (Route<dynamic> route) => false,
+                                  );
+                                }
 
-                                        FirebaseMessaging.instance
-                                            .subscribeToTopic(user!.uid)
-                                            .then((value) => print('Успех'));
-                                      } else {
-                                        // Пользователь не существует, показываем диалог регистрации
-                                        showRegisterDialog(
-                                            context, userRef, scaffoldState);
-                                      }
-                                    }
-                                  })
-                                ],
-                                flowKey: flowKey,
-                                action: action,
-                              ),
-                        ),
-                      );
-                    }),
-                  ],
-                  headerBuilder: headerIcon(Icons.phone),
-                  sideBuilder: sideIcon(Icons.phone),
-                ),
+                                FirebaseMessaging.instance
+                                    .subscribeToTopic(user!.uid)
+                                    .then((value) => debugPrint('Успех'));
+                              } else {
+                                // Пользователь не существует, показываем диалог регистрации
+                                if (context.mounted) {
+                                  showRegisterDialog(
+                                      context, userRef, scaffoldState);
+                                }
+                              }
+                            }
+                          })
+                        ],
+                        flowKey: flowKey,
+                        action: action,
+                      ),
+                    ),
+                  );
+                }),
+              ],
+              headerBuilder: headerIcon(Icons.phone),
+              sideBuilder: sideIcon(Icons.phone),
+            ),
           ),
         );
       } catch (e) {
@@ -97,7 +93,7 @@ class MainViewModelImp implements MainViewModel {
     } else {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => HomePage()),
-            (Route<dynamic> route) => false,
+        (Route<dynamic> route) => false,
       );
     }
   }

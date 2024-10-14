@@ -288,7 +288,7 @@ class DeleteBooking extends ConsumerWidget {
                     } else {
                       var listTimeSlot = snapshot.data as List<int>;
                       return GridView.builder(
-                          itemCount: TIME_SLOT.length,
+                          itemCount: timeSlot.length,
                           gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4),
@@ -302,13 +302,13 @@ class DeleteBooking extends ConsumerWidget {
                                   ? Colors.white10 :
                               maxTimeSlot > index ? Colors.white60
                                   : ref.read(selectedTime.notifier).state ==
-                                  TIME_SLOT.elementAt(index)
+                                  timeSlot.elementAt(index)
                                   ? Colors.white54
                                   : Colors.white,
                               child: GridTile(
                                 header:
                                 ref.read(selectedTime.notifier).state ==
-                                    TIME_SLOT.elementAt(index)
+                                    timeSlot.elementAt(index)
                                     ? const Icon(Icons.check)
                                     : null,
                                 child: Center(
@@ -319,7 +319,7 @@ class DeleteBooking extends ConsumerWidget {
                                     MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                          TIME_SLOT.elementAt(index)),
+                                          timeSlot.elementAt(index)),
                                       Text(
 
                                           listTimeSlot.contains(index)

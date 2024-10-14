@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yandex_geocoder/yandex_geocoder.dart';
 import '../state/state_management.dart';
@@ -14,16 +15,19 @@ class SalonEditScreen extends ConsumerStatefulWidget {
 class SalonEditScreenState extends ConsumerState<SalonEditScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final YandexGeocoder geocoder = YandexGeocoder(apiKey: 'e0ff82b8-b4b6-46ab-9a34-c596c133d6cb');
+  final YandexGeocoder geocoder =
+      YandexGeocoder(apiKey: '${dotenv.env["YANDEX_GEOCODER_API"]}');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Редактирование данных о салоне',
+        title: const Text(
+          'Редактирование данных о салоне',
           style: TextStyle(
             color: Colors.white, // Здесь указывается цвет текста
-          ),),
+          ),
+        ),
         backgroundColor: const Color(0xFF383838),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -76,8 +80,8 @@ class SalonEditScreenState extends ConsumerState<SalonEditScreen> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    _updateSalonData(
-                        salonData!.reference, _nameController.text, _addressController.text);
+                    _updateSalonData(salonData!.reference, _nameController.text,
+                        _addressController.text);
                   },
                   child: const Text('Сохранить изменения'),
                 ),
@@ -89,7 +93,8 @@ class SalonEditScreenState extends ConsumerState<SalonEditScreen> {
     );
   }
 
-  Future<void> _updateSalonData(DocumentReference reference, String name, String address) async {
+  Future<void> _updateSalonData(
+      DocumentReference reference, String name, String address) async {
     try {
       // Получаем текущий город
       String cityName = ref.read(selectedCity.notifier).state.name;
@@ -101,11 +106,14 @@ class SalonEditScreenState extends ConsumerState<SalonEditScreen> {
       GeocodeResponse geocodeResponse = await geocoder.getGeocode(
         DirectGeocodeRequest(
           addressGeocode: fullAddress,
-          ),
-        );
+        ),
+      );
 
-      if (geocodeResponse.response?.geoObjectCollection?.featureMember?.isNotEmpty ?? false) {
-        var point = geocodeResponse.response!.geoObjectCollection!.featureMember![0].geoObject?.point;
+      if (geocodeResponse
+              .response?.geoObjectCollection?.featureMember?.isNotEmpty ??
+          false) {
+        var point = geocodeResponse
+            .response!.geoObjectCollection!.featureMember![0].geoObject?.point;
         if (point != null) {
           double? latitude = point.latitude;
           double? longitude = point.longitude;
@@ -118,9 +126,12 @@ class SalonEditScreenState extends ConsumerState<SalonEditScreen> {
             'longitude': longitude,
           });
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Данные о салоне успешно обновлены')),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Данные о салоне успешно обновлены')),
+            );
+          }
         } else {
           throw Exception('Не удалось получить координаты');
         }
@@ -128,9 +139,12 @@ class SalonEditScreenState extends ConsumerState<SalonEditScreen> {
         throw Exception('Адрес не найден');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка при обновлении данных: ${e.toString()}')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Ошибка при обновлении данных: ${e.toString()}')),
+        );
+      }
     }
   }
 }

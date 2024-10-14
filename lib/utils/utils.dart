@@ -2,9 +2,9 @@ import 'package:ntp/ntp.dart';
 
 import '../model/service_model.dart';
 
-enum LOGIN_STATE { LOGGED, NOT_LOGIN }
+enum LoginState { logged, notLogin }
 
-const TIME_SLOT = {
+const timeSlot = {
   '9:00-9:30',
   '9:30-10:00',
   '10:00-10:30',

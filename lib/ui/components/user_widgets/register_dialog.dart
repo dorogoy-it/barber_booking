@@ -11,18 +11,17 @@ void showRegisterDialog(BuildContext context, CollectionReference userRef,
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
-      return PopScope(
+      return PopScope<Object?>(
         canPop: true,
-        onPopInvoked: (didPop) async {
+        onPopInvokedWithResult: (bool didPop, Object? result) async {
           if (nameController.text.trim().isEmpty || addressController.text.trim().isEmpty) {
             ScaffoldMessenger.of(scaffoldState.currentContext!).showSnackBar(
               const SnackBar(
                 content: Text('Нельзя закрывать окно, если не хочешь вводить данные'),
               ),
             );
-            return Future.value(false);
           } else {
-            return Future.value(true);
+            Navigator.of(context).pop();
           }
         },
         child: AlertDialog(
@@ -63,7 +62,9 @@ void showRegisterDialog(BuildContext context, CollectionReference userRef,
                     'phone': FirebaseAuth.instance.currentUser!.phoneNumber,
                     'id': FirebaseAuth.instance.currentUser!.uid,
                   }).then((value) async {
-                    Navigator.pop(context);
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
                     ScaffoldMessenger.of(scaffoldState.currentContext!).showSnackBar(
                       const SnackBar(
                         content: Text('Данные успешно обновлены!'),
@@ -72,7 +73,9 @@ void showRegisterDialog(BuildContext context, CollectionReference userRef,
                     await Future.delayed(const Duration(seconds: 1));
                     Navigator.of(scaffoldState.currentContext!).pushNamedAndRemoveUntil('/home', (route) => false);
                   }).catchError((e) {
-                    Navigator.pop(context);
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
                     ScaffoldMessenger.of(scaffoldState.currentContext!).showSnackBar(
                       SnackBar(content: Text('$e')),
                     );

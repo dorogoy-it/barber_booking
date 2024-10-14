@@ -183,7 +183,7 @@ class RescheduleBooking extends ConsumerWidget {
                         Icons.person,
                         color: Colors.black,
                       ),
-                      trailing: ref.watch(selectedUser.notifier).state.name == users[index].name
+                      trailing: ref.watch(selectedUser.notifier).state.id == users[index].id
                           ? const Icon(Icons.check)
                           : null,
                       title: Text(
@@ -500,7 +500,7 @@ class RescheduleBooking extends ConsumerWidget {
                       } else {
                         var listTimeSlot = snapshot.data as List<int>;
                         return GridView.builder(
-                            itemCount: TIME_SLOT.length,
+                            itemCount: timeSlot.length,
                             gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4),
@@ -510,7 +510,7 @@ class RescheduleBooking extends ConsumerWidget {
                                   ? null
                                   : () {
                                 ref.read(selectedTime.notifier).state =
-                                    TIME_SLOT.elementAt(index);
+                                    timeSlot.elementAt(index);
                                 ref.read(selectedTimeSlot.notifier).state =
                                     index;
                               },
@@ -522,13 +522,13 @@ class RescheduleBooking extends ConsumerWidget {
                                     : ref
                                     .read(selectedTime.notifier)
                                     .state ==
-                                    TIME_SLOT.elementAt(index)
+                                    timeSlot.elementAt(index)
                                     ? Colors.white54
                                     : Colors.white,
                                 child: GridTile(
                                   header:
                                   ref.read(selectedTime.notifier).state ==
-                                      TIME_SLOT.elementAt(index)
+                                      timeSlot.elementAt(index)
                                       ? const Icon(Icons.check)
                                       : null,
                                   child: Center(
@@ -539,7 +539,7 @@ class RescheduleBooking extends ConsumerWidget {
                                       MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                            TIME_SLOT.elementAt(index)),
+                                            timeSlot.elementAt(index)),
                                         Text(listTimeSlot.contains(index)
                                             ? 'Занято'
                                             : maxTimeSlot > index
@@ -592,10 +592,12 @@ class RescheduleBooking extends ConsumerWidget {
 
     if (bookingExists) {
       // Показываем предупреждение пользователю
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content:
         Text('Сначала удалите старую запись.'),
       ));
+      }
       return; // Выходим из функции, чтобы предовратить дальнейшее выполнение
     } else {
       // Занесение в FireStore
@@ -640,7 +642,7 @@ class RescheduleBooking extends ConsumerWidget {
         ScaffoldMessenger.of(scaffoldKey.currentContext!)
             .showSnackBar(const SnackBar(content: Text('Запись успешно оформлена')))
             .closed
-            .then((v) => Navigator.of(context).pop());
+            .then((v) => context.mounted ? Navigator.of(context).pop() : '');
 
         // Обнуляем значения
         ref.read(selectedUser.notifier).state = UserModel(name: '', address: '', phone: '', id: '');
@@ -708,6 +710,13 @@ class RescheduleBooking extends ConsumerWidget {
                               .toUpperCase(),
                           style: GoogleFonts.robotoMono(),
                         ),
+                      ],
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Row(
+                      children: [
                         const Icon(Icons.person_2_outlined),
                         const SizedBox(
                           width: 10,

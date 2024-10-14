@@ -71,9 +71,8 @@ class StaffHomeViewModelImp implements StaffHomeViewModel {
         ? Colors.white10 :
     maxTimeSlot > index ? Colors.white60
         : ref.read(selectedTime.notifier).state ==
-        TIME_SLOT.elementAt(index)
+        timeSlot.elementAt(index)
         ? Colors.white54
         : Colors.white;
   }
-  
 }

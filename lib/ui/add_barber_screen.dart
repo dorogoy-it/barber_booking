@@ -14,7 +14,8 @@ class AddEmployeeScreen extends ConsumerStatefulWidget {
 class AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _employeeNameController = TextEditingController();
-  final TextEditingController _employeeAddressController = TextEditingController();
+  final TextEditingController _employeeAddressController =
+      TextEditingController();
 
   String? _verificationId;
 
@@ -22,10 +23,12 @@ class AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Добавить сотрудника',
+        title: const Text(
+          'Добавить сотрудника',
           style: TextStyle(
             color: Colors.white, // Здесь указывается цвет текста
-          ),),
+          ),
+        ),
         backgroundColor: const Color(0xFF383838),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -94,7 +97,8 @@ class AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
   void _verificationFailed(FirebaseAuthException exception) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(exception.message ?? 'Не получилось зарегистрировать сотрудника'),
+        content: Text(
+            exception.message ?? 'Не получилось зарегистрировать сотрудника'),
       ),
     );
   }
@@ -118,7 +122,9 @@ class AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
                   smsCode: otpController.text,
                 );
                 await _registerEmployee(ref, credential);
-                Navigator.of(context).pop();
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
               },
               child: const Text('Подтвердить'),
             ),
@@ -128,12 +134,12 @@ class AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
     );
   }
 
-  Future<void> _registerEmployee(WidgetRef ref, PhoneAuthCredential credential) async {
+  Future<void> _registerEmployee(
+      WidgetRef ref, PhoneAuthCredential credential) async {
     try {
       await FirebaseAuth.instance.signInWithCredential(credential);
       String? phoneNumber = FirebaseAuth.instance.currentUser!.phoneNumber;
-      String selectedCityName =
-          ref.read(selectedCity.notifier).state.name;
+      String selectedCityName = ref.read(selectedCity.notifier).state.name;
       String? selectedSalonDocId = ref.read(selectedSalon.notifier).state.docId;
       String uniqueId = FirebaseAuth.instance.currentUser!.uid;
 
@@ -160,17 +166,21 @@ class AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
         'ratingTimes': 0,
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Сотрудник успешно добавлен!'),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Сотрудник успешно добавлен!'),
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Ошибка регистрации: $e'),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ошибка регистрации: $e'),
+          ),
+        );
+      }
     }
   }
 }

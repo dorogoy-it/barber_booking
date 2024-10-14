@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_riverpod/src/consumer.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:untitled2/cloud_firestore/user_ref.dart';
 import 'package:untitled2/model/booking_model.dart';

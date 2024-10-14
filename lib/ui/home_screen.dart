@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +10,10 @@ import 'package:untitled2/model/image_model.dart';
 import 'package:untitled2/state/state_management.dart';
 import 'package:untitled2/view_model/home/home_view_model_imp.dart';
 import '../cloud_firestore/user_ref.dart';
+import '../model/barber_model.dart';
+import '../model/city_model.dart';
+import '../model/salon_model.dart';
+import '../model/service_model.dart';
 import '../model/user_model.dart';
 
 class HomePage extends ConsumerWidget {
@@ -101,7 +106,7 @@ class HomePage extends ConsumerWidget {
                                           Icons.logout,
                                           color: Colors.white,
                                         ),
-                                        onPressed: () => signOut(context),
+                                        onPressed: () => signOut(ref, context),
                                       ),
                                           homeViewModel.isStaff(ref, context)
                                           ? IconButton(
@@ -222,20 +227,70 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Future<void> signOut(BuildContext context) async {
-    // Получаем текущего пользователя перед выходом
-    User? currentUser = FirebaseAuth.instance.currentUser;
+  Future<void> signOut(WidgetRef ref, BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text("Выход"),
+          content: const Text("Вы уверены, что хотите выйти?"),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                // Закрываем диалог перед выполнением выхода
+                Navigator.of(dialogContext).pop();
 
-    // Отписка от топика, если пользователь был авторизован
-    if (currentUser != null) {
-      await FirebaseMessaging.instance.unsubscribeFromTopic(currentUser.uid)
-          .then((value) => print('Успешная отписка от топика'))
-          .catchError((error) => print('Ошибка отписки от топика: $error'));
-    }
+                // Получаем текущего пользователя перед выходом
+                User? currentUser = FirebaseAuth.instance.currentUser;
 
-    // Выход из системы
-    FirebaseUIAuth.signOut(context: context);
-    Navigator.pushReplacementNamed(context, '/');
+                // Отписка от топика, если пользователь был авторизован
+                if (currentUser != null) {
+                  try {
+                    await FirebaseMessaging.instance.unsubscribeFromTopic(currentUser.uid);
+                    if (kDebugMode) {
+                      print('Успешная отписка от топика');
+                    }
+                  } catch (error) {
+                    if (kDebugMode) {
+                      print('Ошибка отписки от топика: $error');
+                    }
+                  }
+
+                  // Выход из системы
+                  if (context.mounted) {
+                    await FirebaseUIAuth.signOut(context: context);
+                  }
+
+                  ref.read(selectedUser.notifier).state = UserModel(name: '', address: '', phone: '', id: '');
+                  ref.read(selectedDate.notifier).state = DateTime.now();
+                  ref.read(selectedBarber.notifier).state = BarberModel();
+                  ref.read(selectedCity.notifier).state = CityModel(name: '');
+                  ref.read(selectedSalon.notifier).state =
+                      SalonModel(name: '', address: '');
+                  ref.read(selectedServices.notifier).state =
+                  List<ServiceModel>.empty(growable: true);
+                  ref.read(currentStep.notifier).state = 1;
+                  ref.read(selectedTime.notifier).state = '';
+                  ref.read(selectedTimeSlot.notifier).state = -1;
+                }
+
+                // Перенаправление на главную страницу
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                }
+              },
+              child: const Text("Да"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text("Нет"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildButtons(BuildContext context, UserModel userModel) {

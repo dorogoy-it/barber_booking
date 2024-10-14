@@ -79,7 +79,7 @@ class BookingViewModelImp implements BookingViewModel {
         .read(selectedTime
         .notifier)
         .state ==
-        TIME_SLOT.elementAt(index)
+        timeSlot.elementAt(index)
         ? Colors.white54
         : Colors.white;
   }
@@ -102,7 +102,7 @@ class BookingViewModelImp implements BookingViewModel {
   @override
   void onSelectedTimeSlot(WidgetRef ref, BuildContext context, int index) {
     ref.read(selectedTimeSlot.notifier).state = index;
-    ref.read(selectedTime.notifier).state = TIME_SLOT.elementAt(index);
+    ref.read(selectedTime.notifier).state = timeSlot.elementAt(index);
   }
 
   @override
@@ -140,9 +140,11 @@ class BookingViewModelImp implements BookingViewModel {
     );
 
     if (bookingExists) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Сначала удалите старую запись.'),
       ));
+      }
       return;
     } else {
       var bookingModel = BookingModel(
@@ -191,7 +193,9 @@ class BookingViewModelImp implements BookingViewModel {
 
         sendNotification(notificationPayload).then((value) {
           ref.read(isLoading.notifier).state = false;
-          Navigator.of(context).pop();
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
           ScaffoldMessenger.of(scaffoldKey.currentContext!)
               .showSnackBar(const SnackBar(
             content: Text('Запись оформлена'),
@@ -276,5 +280,4 @@ class BookingViewModelImp implements BookingViewModel {
       ref.read(selectedServices.notifier).state = [...selectedServicesList, e];
     }
   }
-
 }

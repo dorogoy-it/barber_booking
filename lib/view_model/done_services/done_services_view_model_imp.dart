@@ -34,7 +34,7 @@ class DoneServicesViewModelImp implements DoneServicesViewModel {
       ScaffoldMessenger.of(scaffoldKey.currentContext!)
           .showSnackBar(const SnackBar(content: Text('Процесс успешно завершён')))
           .closed
-          .then((v) => Navigator.of(context).pop());
+          .then((v) => context.mounted ? Navigator.of(context).pop() : '');
     });
   }
 

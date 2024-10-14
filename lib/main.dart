@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_localizations/firebase_ui_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,8 +37,8 @@ import 'firebase_options.dart';
 FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 AndroidNotificationChannel? channel;
 
-
 Future<void> main() async {
+  await dotenv.load(fileName: "lib/.env");
   WidgetsFlutterBinding.ensureInitialized();
   // Firebase
   await Firebase.initializeApp(
@@ -58,7 +59,7 @@ Future<void> main() async {
 
   await flutterLocalNotificationsPlugin!
       .resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel!);
   runApp(ProviderScope(child: MyApp()));
 
@@ -68,9 +69,10 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
+
   String get initialRoute => '/';
   final mfaAction = AuthStateChangeAction<MFARequired>(
-        (context, state) async {
+    (context, state) async {
       final nav = Navigator.of(context);
 
       await startMFAVerification(
@@ -108,7 +110,7 @@ class MyApp extends StatelessWidget {
         },
         '/sms': (context) {
           final arguments = ModalRoute.of(context)?.settings.arguments
-          as Map<String, dynamic>?;
+              as Map<String, dynamic>?;
 
           return SMSCodeInputScreen(
             actions: [
@@ -129,7 +131,8 @@ class MyApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
-        FirebaseUILocalizations.delegate,],
+        FirebaseUILocalizations.delegate,
+      ],
       locale: const Locale('ru', 'RU'),
       restorationScopeId: "Test",
       onGenerateRoute: (settings) {
@@ -232,19 +235,13 @@ class MyHomePage extends StatefulWidget {
   MyHomePageState createState() => MyHomePageState();
 }
 
-class MyHomePageState extends State<MyHomePage>{
-
+class MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
 
-    // Получаем токен, подписку и прочее тут
-
-    FirebaseMessaging.instance.getToken().then((value) => print('Token $value'));
-
     // Выводим уведомление на экран
     initFirebaseMessagingHandler(channel!);
-
   }
 
   @override
@@ -268,22 +265,25 @@ class MyHomePageState extends State<MyHomePage>{
                 child: Consumer(
                   builder: (context, ref, child) {
                     var userState = ref.watch(checkLoginStateProvider);
-                    if (userState.value == LOGIN_STATE.LOGGED) {
+                    if (userState.value == LoginState.logged) {
                       // Пользователь зарегистрирован, перейти на главную страницу
                       Future.microtask(() {
-                        Navigator.pushNamedAndRemoveUntil(
-                            context, '/home', (route) => false);
+                        if (context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/home', (route) => false);
+                        }
                       });
                       return Container();
                     } else {
                       return userState.when(
                         data: (loginState) {
-                          if (loginState == LOGIN_STATE.LOGGED) {
+                          if (loginState == LoginState.logged) {
                             return const CircularProgressIndicator(); // Покажет индикатор загрузки
                           } else {
                             return ElevatedButton.icon(
-                              onPressed: () => widget.mainViewModel.processLogin(
-                                  ref, context, widget.scaffoldState),
+                              onPressed: () => widget.mainViewModel
+                                  .processLogin(
+                                      ref, context, widget.scaffoldState),
                               icon: const Icon(
                                 Icons.phone,
                                 color: Colors.white,
@@ -294,7 +294,7 @@ class MyHomePageState extends State<MyHomePage>{
                               ),
                               style: ButtonStyle(
                                 backgroundColor:
-                                WidgetStateProperty.all(Colors.black),
+                                    WidgetStateProperty.all(Colors.black),
                               ),
                             );
                           }
@@ -317,24 +317,23 @@ class MyHomePageState extends State<MyHomePage>{
     );
   }
 
-  final checkLoginStateProvider = FutureProvider<LOGIN_STATE>((ref) async {
+  final checkLoginStateProvider = FutureProvider<LoginState>((ref) async {
     try {
       var user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         var token = await user.getIdToken();
         ref.read(userToken.notifier).state = token!;
         CollectionReference userRef =
-        FirebaseFirestore.instance.collection('User');
+            FirebaseFirestore.instance.collection('User');
         DocumentSnapshot snapshotUser =
-        await userRef.doc(user.phoneNumber).get();
+            await userRef.doc(user.phoneNumber).get();
         ref.read(forceReload.notifier).state = true;
-        return snapshotUser.exists ? LOGIN_STATE.LOGGED : LOGIN_STATE.NOT_LOGIN;
+        return snapshotUser.exists ? LoginState.logged : LoginState.notLogin;
       } else {
-        return LOGIN_STATE.NOT_LOGIN;
+        return LoginState.notLogin;
       }
     } catch (e) {
-      //print(e);
-      return LOGIN_STATE.NOT_LOGIN;
+      return LoginState.notLogin;
     }
   });
 }

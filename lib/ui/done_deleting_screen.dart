@@ -62,11 +62,11 @@ class DoneDeleting extends ConsumerWidget {
                               children: [
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Клиент:',
@@ -85,7 +85,7 @@ class DoneDeleting extends ConsumerWidget {
                                     ),
                                     Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Телефон:',
@@ -109,11 +109,11 @@ class DoneDeleting extends ConsumerWidget {
                                 ),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Дата',
@@ -122,7 +122,7 @@ class DoneDeleting extends ConsumerWidget {
                                         Text(
                                           DateFormat("dd/MM/yy").format(DateTime
                                               .fromMillisecondsSinceEpoch(
-                                              bookingModel.timeStamp)),
+                                                  bookingModel.timeStamp)),
                                           style: GoogleFonts.robotoMono(
                                             fontSize: 22,
                                             fontWeight: FontWeight.bold,
@@ -132,14 +132,14 @@ class DoneDeleting extends ConsumerWidget {
                                     ),
                                     Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Время',
                                           style: GoogleFonts.robotoMono(),
                                         ),
                                         Text(
-                                          TIME_SLOT
+                                          timeSlot
                                               .elementAt(bookingModel.slot),
                                           style: GoogleFonts.robotoMono(
                                             fontSize: 22,
@@ -155,12 +155,12 @@ class DoneDeleting extends ConsumerWidget {
                                 ),
                                 Column(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceAround,
+                                      MainAxisAlignment.spaceAround,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           bookingModel.salonName,
@@ -195,7 +195,7 @@ class DoneDeleting extends ConsumerWidget {
                                 for (var service in bookingModel.services)
                                   Row(
                                     mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         service.name,
@@ -213,7 +213,7 @@ class DoneDeleting extends ConsumerWidget {
                                 // Display total price
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       'Окончательная цена:',
@@ -265,7 +265,7 @@ class DoneDeleting extends ConsumerWidget {
         .doc(barberBook.customerPhone)
         .collection('Booking_${barberBook.customerId}')
         .doc(
-        '${barberBook.barberId}_${DateFormat('dd_MM_yyyy').format(DateTime.fromMillisecondsSinceEpoch(barberBook.timeStamp))}');
+            '${barberBook.barberId}_${DateFormat('dd_MM_yyyy').format(DateTime.fromMillisecondsSinceEpoch(barberBook.timeStamp))}');
 
     var barBook = FirebaseFirestore.instance
         .collection('AllSalon')
@@ -274,7 +274,8 @@ class DoneDeleting extends ConsumerWidget {
         .doc(ref.read(selectedSalon.notifier).state.docId)
         .collection('Barber')
         .doc(ref.read(selectedBarber.notifier).state.docId)
-        .collection(DateFormat('dd_MM_yyyy').format(ref.read(selectedDate.notifier).state))
+        .collection(DateFormat('dd_MM_yyyy')
+            .format(ref.read(selectedDate.notifier).state))
         .doc(userBook.id);
 
     // Удаление записи из коллекции пользователя
@@ -289,12 +290,13 @@ class DoneDeleting extends ConsumerWidget {
       ScaffoldMessenger.of(scaffoldKey.currentContext!)
           .showSnackBar(const SnackBar(content: Text('Запись успешно удалена')))
           .closed
-          .then((v) => Navigator.of(context).pop());
+          .then((v) => context.mounted ? Navigator.of(context).pop() : '');
     });
 
     ref.read(selectedDate.notifier).state = DateTime.now();
     ref.read(selectedBarber.notifier).state = BarberModel();
-    ref.read(selectedServices.notifier).state = List<ServiceModel>.empty(growable: true);
+    ref.read(selectedServices.notifier).state =
+        List<ServiceModel>.empty(growable: true);
     ref.read(currentStep.notifier).state = 1;
     ref.read(selectedTime.notifier).state = '';
     ref.read(selectedTimeSlot.notifier).state = -1;

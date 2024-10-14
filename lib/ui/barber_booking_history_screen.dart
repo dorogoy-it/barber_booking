@@ -171,7 +171,7 @@ class BarberHistoryScreen extends ConsumerWidget {
                                                                 .robotoMono(),
                                                           ),
                                                           Text(
-                                                            TIME_SLOT.elementAt(
+                                                            timeSlot.elementAt(
                                                                 userBookings[
                                                                         index]
                                                                     .slot),

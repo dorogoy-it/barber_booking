@@ -138,7 +138,7 @@ class DoneService extends ConsumerWidget {
                                           style: GoogleFonts.robotoMono(),
                                         ),
                                         Text(
-                                          TIME_SLOT
+                                          timeSlot
                                               .elementAt(bookingModel.slot),
                                           style: GoogleFonts.robotoMono(
                                             fontSize: 22,

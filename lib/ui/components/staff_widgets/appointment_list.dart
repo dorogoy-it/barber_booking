@@ -110,7 +110,7 @@ displaySlot(WidgetRef ref, StaffHomeViewModel staffHomeViewModel, BuildContext c
                       var listTimeSlot = snapshot.data as List<int>;
                       return GridView.builder(
                         key: const PageStorageKey('keep'),
-                          itemCount: TIME_SLOT.length,
+                          itemCount: timeSlot.length,
                           gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4),
@@ -124,7 +124,7 @@ displaySlot(WidgetRef ref, StaffHomeViewModel staffHomeViewModel, BuildContext c
                               child: GridTile(
                                 header:
                                 ref.read(selectedTime.notifier).state ==
-                                    TIME_SLOT.elementAt(index)
+                                    timeSlot.elementAt(index)
                                     ? const Icon(Icons.check)
                                     : null,
                                 child: Center(
@@ -135,7 +135,7 @@ displaySlot(WidgetRef ref, StaffHomeViewModel staffHomeViewModel, BuildContext c
                                     MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                          TIME_SLOT.elementAt(index)),
+                                          timeSlot.elementAt(index)),
                                       Text(
 
                                           listTimeSlot.contains(index)
