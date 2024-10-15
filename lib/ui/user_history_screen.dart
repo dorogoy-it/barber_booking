@@ -377,7 +377,7 @@ class UserHistory extends ConsumerWidget {
 
 void showReviewDialog(BuildContext context, BookingModel booking) async {
   final commentController = TextEditingController();
-  double rating = 0.0;
+  var rating = 0.0;
 
   // Получаем существующие отзывы пользователя на эту запись
   final reviewsRef = FirebaseFirestore.instance.collection('Reviews');
@@ -407,6 +407,7 @@ void showReviewDialog(BuildContext context, BookingModel booking) async {
     }
     return;
   }
+
 
   // Проверяем, прошло ли время записи
   final bookingTimeStamp =
@@ -455,8 +456,9 @@ void showReviewDialog(BuildContext context, BookingModel booking) async {
                   Icons.star,
                   color: Colors.amber,
                 ),
-                onRatingUpdate: (rating) {
-                  rating = rating;
+                onRatingUpdate: (newRating) {
+                  // Обновляем значение rating
+                  rating = newRating;
                 },
               ),
               const Text('Комментарий:'),
@@ -476,7 +478,7 @@ void showReviewDialog(BuildContext context, BookingModel booking) async {
                 final review = ReviewModel(
                   userId: booking.customerId,
                   barberId: booking.barberId,
-                  rating: rating,
+                  rating: rating,  // Используем обновленное значение rating
                   comment: commentController.text,
                   timestamp: DateTime.now(),
                   bookingId: booking.docId!,
@@ -536,7 +538,7 @@ Future<void> updateBarberRating(BookingModel booking, String barberId) async {
 
   final reviews = reviewsSnapshot.docs.map((doc) => doc.data()).toList();
   final totalRating =
-      reviews.fold<double>(0, (summa, r) => summa + r['rating']);
+      reviews.fold<double>(0, (sum, r) => sum + r['rating']);
   final ratingTimes = reviews.length;
   final updatedRating = totalRating / ratingTimes;
 
